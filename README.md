@@ -1,2 +1,6 @@
 # SF-EvictionMeter
-Tracking and measuring district-level eviction rates and in the city of San Francisco.
+Tracking district-level eviction rates in the city of San Francisco in the months following COVID-19-related, city-wide shelter-in-place orders. 
+
+
+
+
