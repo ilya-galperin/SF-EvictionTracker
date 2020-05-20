@@ -16,43 +16,53 @@ s3_secret_key = '##########################################'
 
 # AWS S3 Paths
 s3_bucket = '#####################'
-SODA_s3_directory, LOG_s3_directory = 'soda_jsons', 'soda_logs'
+SODA_s3_directory, LOG_s3_directory = '/soda_jsons/', '/soda_jsons/logs/'
 
 
 def s3_session():
-    """Establishes s3 session using access/secret access keys."""
+    """Establish AWS S3 session."""
     aws_session = boto3.Session(
         aws_access_key_id=s3_access_key,
         aws_secret_access_key=s3_secret_key
     )
-    s3 = aws_session.resource('s3')
-
-    return s3
+    return aws_session.resource('s3')
 
 
 def get_json(endpoint, headers):
-    """Calls API, requests all created & updated records from the last 180 days."""
+    """Calls API, requests all created & updated records >/= 180 days."""
     headers['Accept'] = 'application/json'
     pull_date = (datetime.now() - timedelta(days=180)).strftime("%Y-%m-%dT%H:%M:%S")
     combined = []
     offset, counter = 0, 1
+    error = False
     while True:
         params = f"""$query=SELECT:*,* WHERE :created_at >= '{pull_date}' OR :updated_at >= '{pull_date}'
                     ORDER BY :id LIMIT 10000 OFFSET {offset}"""
+
+        params = 'ZZZZZZZZZ'
+
         response = requests.get(endpoint, headers=headers, params=params)
+        print('1')
+        print(response.status_code)
         if response.status_code != 200:
-            #return log_exit(response.status_code)
-            return None
-        body = response.json()
-        if len(body) == 0:
+            error = f'api_request: endpoint|{endpoint} |header|{headers} |params|{params} |'
+            print('2')
             break
-        combined.extend(body)
+        captured = response.json()
+        if len(captured) == 0:
+            break
+        combined.extend(captured)
         offset = 10000 * counter
         counter += 1
 
+    print('3')
+    if error:
+        log_exit(filename=error, api_error=response.status_code)
+        return -1
+    print('4')
     metadata = parse_metadata(response.headers)
-    print('get_json_done')
-    return metadata, combined, counter, response.status_code
+    print('get_json complete')
+    return metadata, combined
 
 
 def parse_metadata(header):
@@ -71,39 +81,42 @@ def parse_metadata(header):
     return metadata
 
 
-def write_to_s3(s3, metadata, body):
-    """Write data from API response to s3 as JSON file."""
+def write_to_s3(metadata, body):
+    """Writes data from API response to s3 as JSON file."""
     obj_name = 'soda_evictions_import_' + datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     s3_object = s3.Object(s3_bucket, obj_name)
     try:
         s3_object.put(Body=(bytes(json.dumps(body).encode('UTF-8'))), Metadata=metadata)
-    except ClientError:
-        print('Client error.')
+    except ClientError as e:
+        error = e.response['Error']
+        return log_exit(filename=obj_name, s3_error=error)
 
-    s3_response = ''
-
-    print('Writing to s3 done')
-    return obj_name, s3_response
-    #return log_exit()
+    print('write_to_s3 complete')
+    return log_exit(filename=obj_name, metadata=metadata)
 
 
-def log_exit(s3, filename=None, metadata=None, counter=None, api_error=None, s3_error=None):
+def log_exit(filename=None, metadata=None, api_error=None, s3_error=None):
     """Build log and write to s3."""
     log = {
-        'filename':filename,
+        'filename': filename,
         'metadata': metadata,
-        'qty_api_requests': counter,
         'api_error': api_error,
         's3_error': s3_error
     }
-    s3_object = s3.Object(s3_bucket, 'filename')
+    s3_object = s3.Object(s3_bucket, 'soda_evictions_import_log_' + datetime.now().strftime("%Y-%m-%dT%H:%M:%S"))
+    s3_object.put(Body=(bytes(json.dumps(log).encode('UTF-8'))))
 
-    s3_object.put(Body=(bytes(json.dumps(log).encode('UTF-8'))), Metadata=metadata)
+    if api_error or s3_error:
+        return -1
 
     return 1
 
 
-s3_session = s3_session()
-meta, content, count, code = get_json(SODA_url, SODA_headers)
-s3_file, s3_response = write_to_s3(s3_session, meta, content)
-log_exit(s3=s3_session, filename=s3_file, metadata=meta, counter=count, api_error=code, s3_error=s3_response)
+s3 = s3_session()
+head, body = get_json(SODA_url, SODA_headers)
+result = write_to_s3(head, body)
+
+if result == -1:
+    print('Failure')
+elif result == 1:
+    print('Success')
