@@ -17,6 +17,7 @@ s3_access_key = '#####################'
 s3_secret_key = '##########################################'
 
 # AWS S3 Paths
+# AWS S3 Paths
 s3_bucket = 'sf-evictionmeter'
 s3_directory, s3_log_directory = 'soda_jsons/', 'logs/'
 
@@ -40,7 +41,6 @@ def get_json(endpoint, headers):
     while True:
         params = f"""$query=SELECT:*,* WHERE :created_at >= '{pull_date}' OR :updated_at >= '{pull_date}'
                     ORDER BY :id LIMIT 10000 OFFSET {offset}"""
-
         response = requests.get(endpoint, headers=headers, params=params)
         if response.status_code != 200:
             error = f'api_request-endpoint|{endpoint}|params|{params}|'
@@ -51,13 +51,10 @@ def get_json(endpoint, headers):
         combined.extend(captured)
         offset = 10000 * counter
         counter += 1
-
     if error:
         log_exit(filename=error, api_error=response.status_code)
         return -1, -1
-
     metadata = parse_metadata(response.headers)
-
     print('get_json complete')
     return metadata, combined
 
@@ -78,7 +75,6 @@ def get_size(obj, seen=None):
         size += get_size(obj.__dict__, seen)
     elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
         size += sum([get_size(i, seen) for i in obj])
-
     return size
 
 
@@ -94,7 +90,6 @@ def parse_metadata(header):
         }
     except KeyError:
         metadata = {'KeyError': 'Metadata missing from header, see error log.'}
-
     return metadata
 
 
@@ -109,7 +104,6 @@ def write_to_s3(metadata, body):
         print('client error')
         error = e.response['Error']
         return log_exit(filename=obj_name, s3_error=error)
-
     print('write_to_s3 complete')
     return log_exit(filename=obj_name, metadata=metadata)
 
@@ -126,31 +120,27 @@ def log_exit(filename, metadata=None, api_error=None, s3_error=None):
     s3_object = s3.Object(s3_bucket, s3_log_directory + obj_name)
     print('logging...')
     s3_object.put(Body=(bytes(json.dumps(log).encode('UTF-8'))))
-
     if api_error or s3_error:
         return -1
-
     return 1
 
 
-result = -1
+write_result = -1
+print('establishing s3 session...')
 s3 = s3_session()
+print('calling api...')
 head, content = get_json(SODA_url, SODA_headers)
 obj_size = get_size(head) + get_size(content)
-
 if obj_size > 500000000:
     log_exit(f'Size limit exceeded at {obj_size} bytes, upload aborted.')
     content = -1
     head = -1
     print('obj_size limit exceeded')
-
 if head != -1 and content != -1:
-    result = write_to_s3(head, content)
-    print('get_json succeeded')
+    write_result = write_to_s3(head, content)
 else:
-    print('get_json failed')
-
-if result == 1:
+    print('api error')
+if write_result == 1:
     print('write_to_s3 succeeded')
-elif result == -1:
+elif write_result == -1:
     print('write_to_s3 failed')
