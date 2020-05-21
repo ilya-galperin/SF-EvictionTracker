@@ -15,8 +15,8 @@ s3_access_key = '#####################'
 s3_secret_key = '##########################################'
 
 # AWS S3 Paths
-s3_bucket = '#####################'
-SODA_s3_directory, LOG_s3_directory = '/soda_jsons/', '/soda_jsons/logs/'
+s3_bucket = 'sf-evictionmeter'
+s3_directory, s3_log_directory = 'soda_jsons/', 'logs/'
 
 
 def s3_session():
@@ -39,14 +39,9 @@ def get_json(endpoint, headers):
         params = f"""$query=SELECT:*,* WHERE :created_at >= '{pull_date}' OR :updated_at >= '{pull_date}'
                     ORDER BY :id LIMIT 10000 OFFSET {offset}"""
 
-        params = 'ZZZZZZZZZ'
-
         response = requests.get(endpoint, headers=headers, params=params)
-        print('1')
-        print(response.status_code)
         if response.status_code != 200:
-            error = f'api_request: endpoint|{endpoint} |header|{headers} |params|{params} |'
-            print('2')
+            error = f'api_request-endpoint|{endpoint}|params|{params}|'
             break
         captured = response.json()
         if len(captured) == 0:
@@ -55,18 +50,38 @@ def get_json(endpoint, headers):
         offset = 10000 * counter
         counter += 1
 
-    print('3')
     if error:
         log_exit(filename=error, api_error=response.status_code)
-        return -1
-    print('4')
+        return -1, -1
+
     metadata = parse_metadata(response.headers)
+
     print('get_json complete')
     return metadata, combined
 
 
+def get_size(obj, seen=None):
+    """Recursively finds size of object."""
+    size = sys.getsizeof(obj)
+    if seen is None:
+        seen = set()
+    obj_id = id(obj)
+    if obj_id in seen:
+        return 0
+    seen.add(obj_id)
+    if isinstance(obj, dict):
+        size += sum([get_size(v, seen) for v in obj.values()])
+        size += sum([get_size(k, seen) for k in obj.keys()])
+    elif hasattr(obj, '__dict__'):
+        size += get_size(obj.__dict__, seen)
+    elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
+        size += sum([get_size(i, seen) for i in obj])
+
+    return size
+
+
 def parse_metadata(header):
-    """Collects metadata from API response."""
+    """Parses metadata from API response."""
     try:
         metadata = {
             'api-call-date': header['Date'],
@@ -76,18 +91,20 @@ def parse_metadata(header):
             'types': header['X-SODA2-Types']
         }
     except KeyError:
-        metadata = {'KeyError': 'Metadata not found, please see error log.'}
+        metadata = {'KeyError': 'Metadata missing from header, see error log.'}
 
     return metadata
 
 
 def write_to_s3(metadata, body):
-    """Writes data from API response to s3 as JSON file."""
-    obj_name = 'soda_evictions_import_' + datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-    s3_object = s3.Object(s3_bucket, obj_name)
+    """Writes data from API response to S3 as JSON file."""
+    obj_name = 'soda_evictions_import_' + datetime.now().strftime("%Y-%m-%dT%H%M%S") + '.json'
+    s3_object = s3.Object(s3_bucket, s3_directory + obj_name)
     try:
+        print('writing to s3...')
         s3_object.put(Body=(bytes(json.dumps(body).encode('UTF-8'))), Metadata=metadata)
     except ClientError as e:
+        print('client error')
         error = e.response['Error']
         return log_exit(filename=obj_name, s3_error=error)
 
@@ -95,15 +112,17 @@ def write_to_s3(metadata, body):
     return log_exit(filename=obj_name, metadata=metadata)
 
 
-def log_exit(filename=None, metadata=None, api_error=None, s3_error=None):
-    """Build log and write to s3."""
+def log_exit(filename, metadata=None, api_error=None, s3_error=None):
+    """Build log and write to S3."""
     log = {
         'filename': filename,
         'metadata': metadata,
         'api_error': api_error,
         's3_error': s3_error
     }
-    s3_object = s3.Object(s3_bucket, 'soda_evictions_import_log_' + datetime.now().strftime("%Y-%m-%dT%H:%M:%S"))
+    obj_name = 'soda_evictions_import_log_' + datetime.now().strftime("%Y-%m-%dT%H%M%S")
+    s3_object = s3.Object(s3_bucket, s3_log_directory + obj_name)
+    print('logging...')
     s3_object.put(Body=(bytes(json.dumps(log).encode('UTF-8'))))
 
     if api_error or s3_error:
@@ -112,11 +131,24 @@ def log_exit(filename=None, metadata=None, api_error=None, s3_error=None):
     return 1
 
 
+result = -1
 s3 = s3_session()
-head, body = get_json(SODA_url, SODA_headers)
-result = write_to_s3(head, body)
+head, content = get_json(SODA_url, SODA_headers)
+obj_size = get_size(head) + get_size(content)
 
-if result == -1:
-    print('Failure')
-elif result == 1:
-    print('Success')
+if obj_size > 500000000:
+    log_exit(f'Size limit exceeded at {obj_size} bytes, upload aborted.')
+    content = -1
+    head = -1
+    print('obj_size limit exceeded')
+
+if head != -1 and content != -1:
+    result = write_to_s3(head, content)
+    print('get_json succeeded')
+else:
+    print('get_json failed')
+
+if result == 1:
+    print('write_to_s3 succeeded')
+elif result == -1:
+    print('write_to_s3 failed')
