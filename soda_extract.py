@@ -1,7 +1,9 @@
 import requests
 import json
 import boto3
+from botocore.exceptions import ClientError
 from datetime import datetime, timedelta
+import sys
 
 # Authentication settings for Socrata Open Data API (SODA) endpoint
 SODA_url = 'https://data.sfgov.org/resource/5cei-gny5'
