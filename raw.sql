@@ -1,6 +1,6 @@
-CREATE SCHEMA IF NOT EXISTS src;
+CREATE SCHEMA IF NOT EXISTS raw;
 
-CREATE UNLOGGED TABLE IF NOT EXISTS src.soda_evictions(
+CREATE UNLOGGED TABLE IF NOT EXISTS raw.soda_evictions(
 	raw_id text,
 	created_at timestamp,
 	updated_at timestamp,
