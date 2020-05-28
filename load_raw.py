@@ -54,21 +54,6 @@ def insert_raw(json_content):
     cur.execute(sql_truncate)
     conn.commit()
 
-    content = [{
-        'raw_id': i[':id'],
-        'eviction_id': i['eviction_id']
-    } for i in json_content]
-
-
-    # #print(json_content[0][':id'])
-    # sql_insert = """
-    # INSERT INTO raw.soda_evictions (
-    #     %(raw_id)s,
-    #     %(eviction_id)s
-    # );
-    # """,content
-    #print(content[0])
-
     cur.executemany("""
         INSERT INTO raw.soda_evictions(
             raw_id,
@@ -80,10 +65,10 @@ def insert_raw(json_content):
             state,
             zip,
             file_date,
-	        non_payment,
-	        breach,
-	        nuisance,
-	        illegal_use,
+	    non_payment,
+	    breach,
+	    nuisance,
+	    illegal_use,
             failure_to_sign_renewal,
             access_denial,
             unapproved_subtenant,
@@ -157,26 +142,7 @@ def insert_raw(json_content):
     # print(colnames)
 
     cur.close()
-    #
-    # counter=0
-    # counter2=0
-    # for row in json_content:
-    #     if 'supervisor_district' not in row:
-    #         print(row)
-    #         print('null')
-    #         counter+=1
-    #     counter2+=1
-    #
-    # print(counter,counter2)
-
-    # for row in json_content:
-    #     print(row[':id'])
-    #     print(row['access_denial'])
-    #     if 'supervisor_district' in row:
-    #         print(row['supervisor_district'])
-    #     else:
-    #         print('null')
-
+    print('done')
     return 2
 
 # print('establishing s3 session...')
@@ -187,7 +153,7 @@ def insert_raw(json_content):
 
 conn = rds_engine()
 
-# print('inserting into raw schema...')
+print('inserting into raw schema...')
 #insert_raw(fetched)
 
 insert_raw('')
