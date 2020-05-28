@@ -17,7 +17,6 @@ s3_access_key = '#####################'
 s3_secret_key = '##########################################'
 
 # AWS S3 Paths
-# AWS S3 Paths
 s3_bucket = 'sf-evictionmeter'
 s3_directory, s3_log_directory = 'soda_jsons/', 'logs/'
 
@@ -54,6 +53,13 @@ def get_json(endpoint, headers):
     if error:
         log_exit(filename=error, api_error=response.status_code)
         return -1, -1
+
+    # params = f"""$query=SELECT:*,* WHERE :created_at >= '{pull_date}' OR :updated_at >= '{pull_date}'
+    #                     ORDER BY :id LIMIT 1500"""
+    # response = requests.get(endpoint, headers=headers, params=params)
+    # captured = response.json()
+    # combined.extend(captured)
+
     metadata = parse_metadata(response.headers)
     print('get_json complete')
     return metadata, combined
@@ -96,8 +102,8 @@ def parse_metadata(header):
 def write_to_s3(metadata, body):
     """Writes data from API response to S3 as JSON file."""
     obj_name = 'soda_evictions_import_' + datetime.now().strftime("%Y-%m-%dT%H%M%S") + '.json'
-    s3_object = s3.Object(s3_bucket, s3_directory + obj_name)
     try:
+        s3_object = s3.Object(s3_bucket, s3_directory + obj_name)
         print('writing to s3...')
         s3_object.put(Body=(bytes(json.dumps(body).encode('UTF-8'))), Metadata=metadata)
     except ClientError as e:
@@ -141,6 +147,6 @@ if head != -1 and content != -1:
 else:
     print('api error')
 if write_result == 1:
-    print('write_to_s3 succeeded')
+    print('succeeded')
 elif write_result == -1:
     print('write_to_s3 failed')
