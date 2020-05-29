@@ -130,7 +130,7 @@ FROM (
 	SELECT '1997-01-01'::DATE + SEQUENCE.DAY as datum
 	FROM generate_series(0,10956) as SEQUENCE(DAY)
 	GROUP BY SEQUENCE.DAY
-     ) DQ
+     ) DQ;
 
 
 -- Populate Evictions Fact Table
