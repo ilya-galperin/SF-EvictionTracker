@@ -41,54 +41,54 @@ CREATE UNLOGGED TABLE raw.soda_evictions (
 );
 
 CREATE TABLE staging.dim_Location (
-	LocationKey serial PRIMARY KEY,
-	Neighborhood text,
-	SupervisorDistrict text,
-	City text,
-	State text,
-	ZipCode text
+	location_key serial PRIMARY KEY,
+	neighborhood text,
+	supervisor_district text,
+	city text,
+	state text,
+	zip_code text
 );
 
 CREATE TABLE staging.dim_Reason (
-	ReasonKey serial PRIMARY KEY,
-	ReasonCode text,
-	ReasonDesc text
+	reason_key serial PRIMARY KEY,
+	reason_code text,
+	reason_desc text
 );
 
 CREATE TABLE staging.br_Reason_Group (
-	ReasonGroupKey int,
-	ReasonKey int
+	reason_group_key int,
+	reason_key int
 );	
 
 CREATE TABLE staging.dim_Date (
-	DateKey int PRIMARY KEY,
-	Date date,
-	Year int,
-	Month int,
-	MonthName text,
-	Day int,
-	DayOfYear int,
-	WeekdayName text,
-	CalendarWeek int,
-	FormattedDate text,
-	Quartal text,
-	YearQuartal text,
-	YearMonth text,
-	YearCalendarWeek text,
-	Weekend text,
-	USHoliday text,
-	Period text,
-	CWStart date,
-	CWEnd date,
-	MonthStart date,
-	MonthEnd date
+	date_key int PRIMARY KEY,
+	date date,
+	year int,
+	month int,
+	month_name text,
+	day int,
+	day_of_year int,
+	weekday_name text,
+	calendar_week int,
+	formatted_date text,
+	quartal text,
+	year_quartal text,
+	year_month text,
+	year_calendar_week text,
+	weekend text,
+	us_holiday text,
+	period text,
+	cw_start date,
+	cw_end date,
+	month_start date,
+	month_end date
 );
 
 CREATE TABLE staging.fact_Evictions (
-	EvictionKey text PRIMARY KEY,
-	LocationKey int,
-	ReasonGroupKey int,
-	FileDateKey int,
-	ConstraintsDateKey int,
-	StreetAddress text
+	eviction_key text PRIMARY KEY,
+	location_key int,
+	reason_group_key int,
+	file_date_key int,
+	constraints_date_key int,
+	street_address text
 );
