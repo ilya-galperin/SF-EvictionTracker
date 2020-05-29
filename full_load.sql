@@ -1,24 +1,24 @@
 -- Populate Location Dimension
 
-INSERT INTO staging.dim_Location (LocationKey, Neighborhood, SupervisorDistrict, City, State, ZipCode)
+INSERT INTO staging.dim_Location (location_key, neighborhood, supervisor_district, city, state, zip_code)
 SELECT -1, 'Uknown', 'Uknown', 'Unknown', 'Uknown', 'Unknown';
 
-INSERT INTO staging.dim_Location (Neighborhood, SupervisorDistrict, City, State, ZipCode)
+INSERT INTO staging.dim_Location (neighborhood, supervisor_district, city, state, zip_code)
 SELECT DISTINCT
-	COALESCE(neighborhood, 'Unknown') as Neighborhood,
-	COALESCE(supervisor_district, 'Unknown') as SupervisorDistrict,
-	COALESCE(city, 'Uknown') as City,
-	COALESCE(state, 'Unknown') as State,
-	COALESCE(zip, 'Unknown') as ZipCode
+	COALESCE(neighborhood, 'Unknown') as neighborhood,
+	COALESCE(supervisor_district, 'Unknown') as supervisor_district,
+	COALESCE(city, 'Uknown') as city,
+	COALESCE(state, 'Unknown') as state,
+	COALESCE(zip, 'Unknown') as zip_code
 FROM raw.soda_evictions;
 
 
 -- Populate Reason Dimension
 
-INSERT INTO staging.dim_Reason(ReasonKey, ReasonCode, ReasonDesc)
+INSERT INTO staging.dim_Reason(reason_key, reason_code, reason_desc)
 VALUES (-1, 'Unknown', 'Unknown');
 
-INSERT INTO staging.dim_Reason(ReasonCode, ReasonDesc)
+INSERT INTO staging.dim_Reason(reason_code, reason_desc)
 VALUES 	('non_payment', 'Non-Payment'),
 		('breach', 'Breach'),
 		('nuisance', 'Nuisance'),
@@ -45,7 +45,7 @@ VALUES 	('non_payment', 'Non-Payment'),
 DROP TABLE IF EXISTS tmp_reason_group;
 
 SELECT 
-	ROW_NUMBER() OVER(ORDER BY concat_reason) as GroupKey,
+	ROW_NUMBER() OVER(ORDER BY concat_reason) as group_key,
 	string_to_array(concat_reason, '|') as reason_array,
 	concat_reason
 INTO TEMP tmp_reason_group
@@ -75,57 +75,57 @@ FROM (
 			CASE WHEN development = 'true' THEN 'development|' ELSE '' END||
 			CASE WHEN good_samaritan_ends = 'true' THEN 'good_samaritan_ends|' ELSE '' END
 				as concat_reason
-		FROM raw.soda_Evictions
+		FROM raw.soda_evictions
 		) f1
 	) f2;
 
-INSERT INTO staging.br_Reason_Group(ReasonGroupKey, ReasonKey)
+INSERT INTO staging.br_Reason_Group(reason_group_key, reason_key)
 SELECT DISTINCT
-	GroupKey,
-	ReasonKey
-FROM (SELECT GroupKey, unnest(reason_array) unnested FROM tmp_reason_group) grp
-JOIN staging.dim_Reason r ON r.ReasonCode = grp.unnested;	
+	group_key as reason_group_key,
+	reason_key
+FROM (SELECT group_key, unnest(reason_array) unnested FROM tmp_reason_group) grp
+JOIN staging.dim_Reason r ON r.reason_code = grp.unnested;	
 
 
 -- Populate Date Dimension Table
 
-INSERT INTO staging.dim_Date (DateKey, Date, Year, Month, MonthName, Day, DayOfYear, WeekdayName, CalendarWeek, 
-							FormattedDate, Quartal, YearQuartal, YearMonth, YearCalendarWeek, Weekend, USHoliday,
-							Period, CWStart, CWEnd, MonthStart, MonthEnd)
+INSERT INTO staging.dim_Date (date_key, date, year, month, month_name, day, day_of_year, weekday_name, calendar_week, 
+							formatted_date, quartal, year_quartal, year_month, year_calendar_week, weekend, us_holiday,
+							period, cw_start, cw_end, month_start, month_end)
 SELECT -1, '1900-01-01', -1, -1, 'Unknown', -1, -1, 'Unknown', -1, 'Unknown', 'Unknown', 'Unknown', 'Unknown',
 		'Unknown', 'Unknown', 'Unknown', 'Unknown', '1900-01-01', '1900-01-01', '1900-01-01', '1900-01-01';
 		
 
-INSERT INTO staging.dim_Date (DateKey, Date, Year, Month, MonthName, Day, DayOfYear, WeekdayName, CalendarWeek, 
-							FormattedDate, Quartal, YearQuartal, YearMonth, YearCalendarWeek, Weekend, USHoliday,
-							Period, CWStart, CWEnd, MonthStart, MonthEnd)
+INSERT INTO staging.dim_Date (date_key, date, year, month, month_name, day, day_of_year, weekday_name, calendar_week, 
+							formatted_date, quartal, year_quartal, year_month, year_calendar_week, weekend, us_holiday,
+							period, cw_start, cw_end, month_start, month_end)
 SELECT
-	TO_CHAR(datum, 'yyyymmdd')::INT as DateKey,
-	datum as Date,
-	EXTRACT(YEAR FROM datum) as Year,
-	EXTRACT(MONTH FROM datum) as Month,
-	TO_CHAR(datum, 'TMMonth') as MonthName,
-	EXTRACT(DAY FROM datum) as Day,
-	EXTRACT(doy FROM datum) as DayOfYear,
-	TO_CHAR(datum, 'TMDay') as WeekdayName,
-	EXTRACT(week FROM datum) as CalendarWeek,
-	TO_CHAR(datum, 'dd. mm. yyyy') as FormattedDate,
-	'Q' || TO_CHAR(datum, 'Q') as Quartal,
-	TO_CHAR(datum, 'yyyy/"Q"Q') as YearQuartal,
-	TO_CHAR(datum, 'yyyy/mm') as YearMonth,
-	TO_CHAR(datum, 'iyyy/IW') as YearCalendarWeek,
-	CASE WHEN EXTRACT(isodow FROM datum) IN (6, 7) THEN 'Weekend' ELSE 'Weekday' END as Weekend,
+	TO_CHAR(datum, 'yyyymmdd')::INT as date_key,
+	datum as date,
+	EXTRACT(YEAR FROM datum) as year,
+	EXTRACT(MONTH FROM datum) as month,
+	TO_CHAR(datum, 'TMMonth') as month_name,
+	EXTRACT(DAY FROM datum) as day,
+	EXTRACT(doy FROM datum) as day_of_year,
+	TO_CHAR(datum, 'TMDay') as weekday_name,
+	EXTRACT(week FROM datum) as calendar_week,
+	TO_CHAR(datum, 'dd. mm. yyyy') as formatted_date,
+	'Q' || TO_CHAR(datum, 'Q') as quartal,
+	TO_CHAR(datum, 'yyyy/"Q"Q') as year_quartal,
+	TO_CHAR(datum, 'yyyy/mm') as year_month,
+	TO_CHAR(datum, 'iyyy/IW') as year_calendar_week,
+	CASE WHEN EXTRACT(isodow FROM datum) IN (6, 7) THEN 'Weekend' ELSE 'Weekday' END as weekend,
 	CASE WHEN TO_CHAR(datum, 'MMDD') IN ('0101', '0704', '1225', '1226') THEN 'Holiday' ELSE 'No holiday' END
-			as USHoliday,
+			as us_holiday,
 	CASE WHEN TO_CHAR(datum, 'MMDD') BETWEEN '0701' AND '0831' THEN 'Summer break'
 	     WHEN TO_CHAR(datum, 'MMDD') BETWEEN '1115' AND '1225' THEN 'Christmas season'
 	     WHEN TO_CHAR(datum, 'MMDD') > '1225' OR TO_CHAR(datum, 'MMDD') <= '0106' THEN 'Winter break'
 		 ELSE 'Normal' END
-			as Period,
-	datum + (1 - EXTRACT(isodow FROM datum))::INTEGER as CWStart,
-	datum + (7 - EXTRACT(isodow FROM datum))::INTEGER as CWEnd,
-	datum + (1 - EXTRACT(DAY FROM datum))::INTEGER as MonthStart,
-	(datum + (1 - EXTRACT(DAY FROM datum))::INTEGER + '1 month'::INTERVAL)::DATE - '1 day'::INTERVAL as MonthEnd
+			as period,
+	datum + (1 - EXTRACT(isodow FROM datum))::INTEGER as cw_start,
+	datum + (7 - EXTRACT(isodow FROM datum))::INTEGER as cw_end,
+	datum + (1 - EXTRACT(DAY FROM datum))::INTEGER as month_start,
+	(datum + (1 - EXTRACT(DAY FROM datum))::INTEGER + '1 month'::INTERVAL)::DATE - '1 day'::INTERVAL as month_end
 FROM (
 	SELECT '1997-01-01'::DATE + SEQUENCE.DAY as datum
 	FROM generate_series(0,10956) as SEQUENCE(DAY)
@@ -139,7 +139,7 @@ DROP TABLE IF EXISTS tmp_reason_facts;
 
 SELECT 
 	eviction_id,
-	GroupKey as ReasonGroupKey
+	group_key as reason_group_key
 INTO tmp_reason_facts
 FROM (
 	SELECT 
@@ -168,33 +168,27 @@ FROM (
 			CASE WHEN development = 'true' THEN 'development|' ELSE '' END||
 			CASE WHEN good_samaritan_ends = 'true' THEN 'good_samaritan_ends|' ELSE '' END
 				as concat_reason
-		FROM raw.soda_Evictions
+		FROM raw.soda_evictions
 		) grp
 	) f_grp
 JOIN tmp_reason_group t_grp ON f_grp.concat_reason = t_grp.concat_reason;	
 
 
-INSERT INTO staging.fact_Evictions (EvictionKey, LocationKey, ReasonGroupKey, FileDateKey, ConstraintsDateKey, StreetAddress)
+INSERT INTO staging.fact_Evictions (eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address)
 SELECT 
-	f.eviction_id as EvictionKey,
-	COALESCE(l.LocationKey, -1) as LocationKey,
-	r.ReasonGroupKey as ReasonGroupKey,
-	COALESCE(d1.DateKey, -1) as FileDateKey,
-	COALESCE(d2.DateKey, -1) as ConstraintsDateKey,
-	f.address as StreetAddress
+	f.eviction_id as eviction_key,
+	COALESCE(l.location_key, -1) as location_key,
+	r.reason_group_key as reason_group_key,
+	COALESCE(d1.date_key, -1) as file_date_key,
+	COALESCE(d2.date_key, -1) as constraints_date_key,
+	f.address as street_address
 FROM raw.soda_evictions f
 LEFT JOIN tmp_reason_facts r on f.eviction_id = r.eviction_id
 LEFT JOIN staging.dim_Location l 
-	ON COALESCE(f.neighborhood, 'Unknown') = l.Neighborhood
-	AND COALESCE(f.supervisor_district, 'Unknown') = l.SupervisorDistrict
-	AND COALESCE(f.city, 'Unknown') = l.City
-	AND COALESCE(f.state, 'Unknown') = l.State
-	AND COALESCE(f.zip, 'Unknown') = l.ZipCode
-LEFT JOIN staging.dim_Date d1 ON f.file_date = d1.Date
-LEFT JOIN staging.dim_Date d2 ON f.constraints_date = d2.Date;
-
-		     
--- Clean-up		    
-		     
-DROP TABLE tmp_reason_group;
-DROP TABLE tmp_reason_facts;
+	ON COALESCE(f.neighborhood, 'Unknown') = l.neighborhood
+	AND COALESCE(f.supervisor_district, 'Unknown') = l.supervisor_district
+	AND COALESCE(f.city, 'Unknown') = l.city
+	AND COALESCE(f.state, 'Unknown') = l.state
+	AND COALESCE(f.zip, 'Unknown') = l.zip_code
+LEFT JOIN staging.dim_Date d1 ON f.file_date = d1.date
+LEFT JOIN staging.dim_Date d2 ON f.constraints_date = d2.date;
