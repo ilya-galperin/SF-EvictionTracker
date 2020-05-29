@@ -6,7 +6,7 @@ CREATE SCHEMA raw;
 CREATE SCHEMA staging;
 CREATE SCHEMA prod;
 
-CREATE UNLOGGED TABLE raw.soda_evictions(
+CREATE UNLOGGED TABLE raw.soda_evictions (
 	raw_id text,
 	created_at timestamp,
 	updated_at timestamp,
