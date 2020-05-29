@@ -20,24 +20,24 @@ VALUES (-1, 'Unknown', 'Unknown');
 
 INSERT INTO staging.dim_Reason(ReasonCode, ReasonDesc)
 VALUES 	('non_payment', 'Non-Payment'),
-	('breach', 'Breach'),
-	('nuisance', 'Nuisance'),
-	('illegal_use', 'Illegal Use'),
-	('failure_to_sign_renewal', 'Failure to Sign Renewal'),
-	('access_denial', 'Access Denial'),
-	('unapproved_subtenant', 'Unapproved Subtenant'),
-	('owner_move_in', 'Owner Move-In'),
-	('demolition', 'Demolition'),
-	('capital_improvement', 'Capital Improvement'),
-	('substantial_rehab', 'Substantial Rehab'),
-	('ellis_act_withdrawal', 'Ellis Act Withdrawal'),
-	('condo_conversion', 'Condo Conversion'),
-	('roommate_same_unit', 'Roommate Same Unit'),
-	('other_cause', 'Other Cause'),
-	('late_payments', 'Late Payments'),
-	('lead_remediation', 'Lead Remediation'),
-	('development', 'Development'),
-	('good_samaritan_ends', 'Good Samaritan Ends');
+		('breach', 'Breach'),
+		('nuisance', 'Nuisance'),
+		('illegal_use', 'Illegal Use'),
+		('failure_to_sign_renewal', 'Failure to Sign Renewal'),
+		('access_denial', 'Access Denial'),
+		('unapproved_subtenant', 'Unapproved Subtenant'),
+		('owner_move_in', 'Owner Move-In'),
+		('demolition', 'Demolition'),
+		('capital_improvement', 'Capital Improvement'),
+		('substantial_rehab', 'Substantial Rehab'),
+		('ellis_act_withdrawal', 'Ellis Act Withdrawal'),
+		('condo_conversion', 'Condo Conversion'),
+		('roommate_same_unit', 'Roommate Same Unit'),
+		('other_cause', 'Other Cause'),
+		('late_payments', 'Late Payments'),
+		('lead_remediation', 'Lead Remediation'),
+		('development', 'Development'),
+		('good_samaritan_ends', 'Good Samaritan Ends');
 
 	
 -- Populate Reason Bridge Table
