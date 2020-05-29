@@ -192,3 +192,9 @@ LEFT JOIN staging.dim_Location l
 	AND COALESCE(f.zip, 'Unknown') = l.ZipCode
 LEFT JOIN staging.dim_Date d1 ON f.file_date = d1.Date
 LEFT JOIN staging.dim_Date d2 ON f.constraints_date = d2.Date;
+
+		     
+-- Clean-up		    
+		     
+DROP TABLE tmp_reason_group;
+DROP TABLE tmp_reason_facts;
