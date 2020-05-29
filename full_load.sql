@@ -10,7 +10,7 @@ SELECT DISTINCT
 	COALESCE(city, 'Uknown') as City,
 	COALESCE(state, 'Unknown') as State,
 	COALESCE(zip, 'Unknown') as ZipCode
-FROM raw.soda_evictions
+FROM raw.soda_evictions;
 
 
 -- Populate Reason Dimension
