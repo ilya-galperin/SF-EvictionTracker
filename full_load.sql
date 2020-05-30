@@ -192,3 +192,33 @@ LEFT JOIN staging.dim_Location l
 	AND COALESCE(f.zip, 'Unknown') = l.zip_code
 LEFT JOIN staging.dim_Date d1 ON f.file_date = d1.date
 LEFT JOIN staging.dim_Date d2 ON f.constraints_date = d2.date;
+
+		     
+-- Migrate to Production Schema
+
+INSERT INTO prod.dim_Location (location_key, neighborhood, supervisor_district, city, state, zip_code)
+SELECT location_key, neighborhood, supervisor_district, city, state, zip_code
+FROM staging.dim_Location;
+
+INSERT INTO prod.dim_Reason (reason_key, reason_code, reason_desc)
+SELECT reason_key, reason_code, reason_desc
+FROM staging.dim_Reason;
+
+INSERT INTO prod.br_Reason_Group (reason_group_key, reason_key)
+SELECT reason_group_key, reason_key
+FROM staging.br_Reason_Group;
+
+INSERT INTO prod.dim_Date 
+		(date_key, date, year, month, month_name, day, day_of_year, weekday_name, calendar_week, 
+		formatted_date, quartal, year_quartal, year_month, year_calendar_week, weekend, us_holiday,
+		period, cw_start, cw_end, month_start, month_end)
+SELECT 
+		date_key, date, year, month, month_name, day, day_of_year, weekday_name, calendar_week, 
+		formatted_date, quartal, year_quartal, year_month, year_calendar_week, weekend, us_holiday, period, 
+		cw_start, cw_end, month_start, month_end
+FROM staging.dim_Date;
+
+INSERT INTO prod.fact_Evictions (eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address)
+SELECT eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address
+FROM staging.fact_Evictions;		     
+		     
