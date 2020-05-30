@@ -6,6 +6,8 @@ CREATE SCHEMA raw;
 CREATE SCHEMA staging;
 CREATE SCHEMA prod;
 
+
+-- Raw
 CREATE UNLOGGED TABLE raw.soda_evictions (
 	raw_id text,
 	created_at timestamp,
@@ -40,6 +42,8 @@ CREATE UNLOGGED TABLE raw.soda_evictions (
 	neighborhood text
 );
 
+
+-- Staging
 CREATE TABLE staging.dim_Location (
 	location_key serial PRIMARY KEY,
 	neighborhood text,
@@ -85,6 +89,61 @@ CREATE TABLE staging.dim_Date (
 );
 
 CREATE TABLE staging.fact_Evictions (
+	eviction_key text PRIMARY KEY,
+	location_key int,
+	reason_group_key int,
+	file_date_key int,
+	constraints_date_key int,
+	street_address text
+);
+
+
+-- Prod
+CREATE TABLE prod.dim_Location (
+	location_key serial PRIMARY KEY,
+	neighborhood text,
+	supervisor_district text,
+	city text,
+	state text,
+	zip_code text
+);
+
+CREATE TABLE prod.dim_Reason (
+	reason_key serial PRIMARY KEY,
+	reason_code text,
+	reason_desc text
+);
+
+CREATE TABLE prod.br_Reason_Group (
+	reason_group_key int,
+	reason_key int
+);	
+
+CREATE TABLE prod.dim_Date (
+	date_key int PRIMARY KEY,
+	date date,
+	year int,
+	month int,
+	month_name text,
+	day int,
+	day_of_year int,
+	weekday_name text,
+	calendar_week int,
+	formatted_date text,
+	quartal text,
+	year_quartal text,
+	year_month text,
+	year_calendar_week text,
+	weekend text,
+	us_holiday text,
+	period text,
+	cw_start date,
+	cw_end date,
+	month_start date,
+	month_end date
+);
+
+CREATE TABLE prod.fact_Evictions (
 	eviction_key text PRIMARY KEY,
 	location_key int,
 	reason_group_key int,
