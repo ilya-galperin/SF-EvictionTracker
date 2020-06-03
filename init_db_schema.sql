@@ -97,9 +97,6 @@ CREATE TABLE staging.fact_Evictions (
 	street_address text
 );
 
-CREATE TABLE staging.fact_key_list (eviction_key text PRIMARY KEY);
-CREATE UNIQUE INDEX fact_key_idx ON staging.fact_key_list (eviction_key);
-
 
 -- Prod
 CREATE TABLE prod.dim_Location (
