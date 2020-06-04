@@ -188,7 +188,8 @@ INTO tmp_reason_group_lookup
 FROM tmp_fct_reason_groups f
 JOIN tmp_existing_reason_groups d ON f.rk_array = d.rk_array;	--267			    
 		
--- INSERT INTO staging.fact_Evictions		
+INSERT INTO staging.fact_Evictions 
+	(eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address)
 SELECT
 	f.eviction_id as eviction_key,
 	COALESCE(l.location_key, -1) as location_key,
@@ -228,7 +229,15 @@ LEFT JOIN prod.br_Reason_Group prd
 WHERE 
 	prd.reason_group_key IS NULL;
 
-
-
--- CREATE INDEXES ON THE BR STAGING & PRD TABLE	IN INIT DB SCHEMA	
+--TEST TO MAKE SURE THIS IS WORKING CORRECTLY
+INSERT INTO prod.fact_Evictions 
+	(eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address)
+SELECT eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address
+FROM staging.fact_Evictions 
+	ON CONFLICT (eviction_key) DO UPDATE SET 
+		location_key = EXCLUDED.location_key,
+		reason_group_key = EXCLUDED.reason_group_key,
+		file_date_key = EXCLUDED.file_date_key,
+		constraints_date_key = EXCLUDED.constraints_date_key,
+		street_address = EXCLUDED.street_address;
 
