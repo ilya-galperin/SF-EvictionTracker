@@ -143,7 +143,6 @@ SELECT DISTINCT
 INTO TEMP tmp_existing_reason_groups
 FROM staging.br_Reason_Group
 GROUP BY reason_group_key; --125
-
 					    
 SELECT 
 	eviction_id,
