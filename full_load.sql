@@ -42,8 +42,6 @@ VALUES 	('non_payment', 'Non-Payment'),
 	
 -- Populate Reason Bridge Table
 
-DROP TABLE IF EXISTS tmp_reason_group;
-
 SELECT 
 	ROW_NUMBER() OVER(ORDER BY concat_reason) as group_key,
 	string_to_array(concat_reason, '|') as reason_array,
@@ -135,8 +133,6 @@ FROM (
 
 -- Populate Evictions Fact Table
 
-DROP TABLE IF EXISTS tmp_reason_facts;
-
 SELECT 
 	eviction_id,
 	group_key as reason_group_key
@@ -193,6 +189,9 @@ LEFT JOIN staging.dim_Location l
 LEFT JOIN staging.dim_Date d1 ON f.file_date = d1.date
 LEFT JOIN staging.dim_Date d2 ON f.constraints_date = d2.date;
 
+DROP TABLE tmp_reason_group;
+DROP TABLE tmp_reason_facts;
+
 		     
 -- Migrate to Production Schema
 
@@ -220,5 +219,4 @@ FROM staging.dim_Date;
 
 INSERT INTO prod.fact_Evictions (eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address)
 SELECT eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address
-FROM staging.fact_Evictions;		     
-		     
+FROM staging.fact_Evictions;		
