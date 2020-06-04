@@ -63,6 +63,8 @@ CREATE TABLE staging.br_Reason_Group (
 	reason_group_key int,
 	reason_key int
 );	
+CREATE INDEX reason_group_key_idx ON staging.br_Reason_Group (reason_group_key);
+CREATE INDEX reason_key_idx ON staging.br_Reason_Group (reason_key);
 
 CREATE TABLE staging.dim_Date (
 	date_key int PRIMARY KEY,
@@ -118,6 +120,8 @@ CREATE TABLE prod.br_Reason_Group (
 	reason_group_key int,
 	reason_key int
 );	
+CREATE INDEX reason_group_key_idx ON prod.br_Reason_Group (reason_group_key);
+CREATE INDEX reason_key_idx ON prod.br_Reason_Group (reason_key);
 
 CREATE TABLE prod.dim_Date (
 	date_key int PRIMARY KEY,
