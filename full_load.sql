@@ -15,10 +15,10 @@ FROM raw.soda_evictions;
 
 -- Populate Reason Dimension
 
-INSERT INTO staging.dim_Reason(reason_key, reason_code, reason_desc)
+INSERT INTO staging.dim_Reason (reason_key, reason_code, reason_desc)
 VALUES (-1, 'Unknown', 'Unknown');
 
-INSERT INTO staging.dim_Reason(reason_code, reason_desc)
+INSERT INTO staging.dim_Reason (reason_code, reason_desc)
 VALUES 	('non_payment', 'Non-Payment'),
 		('breach', 'Breach'),
 		('nuisance', 'Nuisance'),
@@ -79,7 +79,7 @@ FROM (
 		) f1
 	) f2;
 
-INSERT INTO staging.br_Reason_Group(reason_group_key, reason_key)
+INSERT INTO staging.br_Reason_Group (reason_group_key, reason_key)
 SELECT DISTINCT
 	group_key as reason_group_key,
 	reason_key
