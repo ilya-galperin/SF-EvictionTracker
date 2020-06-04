@@ -144,6 +144,7 @@ INTO TEMP tmp_existing_reason_groups
 FROM staging.br_Reason_Group
 GROUP BY reason_group_key; --125
 
+					    
 SELECT 
 	eviction_id,
 	ARRAY_AGG(reason_key ORDER BY reason_key ASC) as rk_array
@@ -181,13 +182,15 @@ FROM (
 JOIN staging.dim_Reason r ON se2.unnested_reason = r.reason_code	
 GROUP BY se2.eviction_id; --267
 
+					    
 SELECT
 	eviction_id, 
 	reason_group_key
 INTO tmp_reason_group_lookup
 FROM tmp_fct_reason_groups f
 JOIN tmp_existing_reason_groups d ON f.rk_array = d.rk_array;	--267			    
-		
+
+					    
 INSERT INTO staging.fact_Evictions 
 	(eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address)
 SELECT
@@ -212,7 +215,8 @@ DROP TABLE tmp_existing_reason_groups;
 DROP TABLE tmp_fct_reason_groups;
 DROP TABLE tmp_reason_group_lookup;
 
-
+					    
+					    
 -- Merge Into Production Schema
 
 INSERT INTO prod.dim_Location (location_key, neighborhood, supervisor_district, city, state, zip_code)
@@ -220,6 +224,7 @@ SELECT location_key, neighborhood, supervisor_district, city, state, zip_code
 FROM staging.dim_Location
 	ON CONFLICT (location_key) DO NOTHING;	
 
+					    
 INSERT INTO prod.br_Reason_Group (reason_group_key, reason_key)
 SELECT stg.reason_group_key, stg.reason_key 
 FROM staging.br_Reason_Group stg
@@ -229,7 +234,7 @@ LEFT JOIN prod.br_Reason_Group prd
 WHERE 
 	prd.reason_group_key IS NULL;
 
---TEST TO MAKE SURE THIS IS WORKING CORRECTLY
+					    
 INSERT INTO prod.fact_Evictions 
 	(eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address)
 SELECT eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address
