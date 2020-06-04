@@ -181,7 +181,6 @@ FROM (
 	) se2
 JOIN staging.dim_Reason r ON se2.unnested_reason = r.reason_code	
 GROUP BY se2.eviction_id; --267
-
 					    
 SELECT
 	eviction_id, 
@@ -233,7 +232,7 @@ LEFT JOIN prod.br_Reason_Group prd
 	AND stg.reason_key = prd.reason_key
 WHERE 
 	prd.reason_group_key IS NULL;
-
+					    
 					    
 INSERT INTO prod.fact_Evictions 
 	(eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address)
