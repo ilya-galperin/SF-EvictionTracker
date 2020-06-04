@@ -147,7 +147,7 @@ INSERT INTO prod.br_Reason_Group (reason_group_key, reason_key)
 SELECT stg.reason_group_key, stg.reason_key 
 FROM staging.br_Reason_Group stg
 LEFT JOIN prod.br_Reason_Group prd ON stg.reason_group_key = prd.reason_group_key
-								   AND stg.reason_key = prd.reason_key
+				   AND stg.reason_key = prd.reason_key
 WHERE 
 	prd.reason_group_key IS NULL;
 
