@@ -1,3 +1,4 @@
+
 -- Populate Location Dimension
 
 INSERT INTO staging.dim_Location (location_key, neighborhood, supervisor_district, city, state, zip_code)
