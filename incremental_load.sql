@@ -39,9 +39,6 @@ VALUES ( 'M080633', 'z0001', '2020-01-01', '2020-06-01', 'addrTest', 'cityTest',
 		'false', 'false', 'false', 'false', 'false',
 		'true', 'false', 'false')
 *****************************************************************************************************/
-TRUNCATE TABLE staging.fact_Evictions;
-
-
 -- Populate Location Dimension
 
 INSERT INTO staging.dim_Location (neighborhood, supervisor_district, city, state, zip_code)
@@ -137,7 +134,9 @@ DROP TABLE tmp_new_reason_groups;
 
 					    
 -- Populate Staging Fact Table
-
+					    
+TRUNCATE TABLE staging.fact_Evictions;
+					    
 SELECT
 	f.eviction_id as eviction_key,
 	COALESCE(l.location_key, -1) as location_key,
