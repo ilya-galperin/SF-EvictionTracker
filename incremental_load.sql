@@ -37,3 +37,45 @@ VALUES ( 'M080633', 'z0001', '2020-01-01', '2020-06-01', 'addrTest', 'cityTest',
 		'false', 'false', 'false', 'false', 'false',
 		'false', 'false', 'false', 'false', 'false',
 		'true', 'false', 'false')
+
+
+TRUNCATE TABLE staging.fact_Evictions;
+TRUNCATE TABLE staging.dim_Location;
+TRUNCATE TABLE staging.br_Reason_Group
+
+INSERT INTO staging.dim_Location (location_key, neighborhood, supervisor_district, city, state, zip_code)
+SELECT location_key, neighborhood, supervisor_district, city, state, zip_code
+FROM prod.dim_Location;
+
+
+INSERT INTO staging.dim_Location (neighborhood, supervisor_district, city, state, zip_code)
+SELECT 
+	se.neighborhood,
+	se.supervisor_district,
+	se.city,
+	se.state,
+	se.zip_code
+FROM (
+	SELECT DISTINCT
+		COALESCE(neighborhood, 'Unknown') as neighborhood,
+		COALESCE(supervisor_district, 'Unknown') as supervisor_district,
+		COALESCE(city, 'Uknown') as city,
+		COALESCE(state, 'Unknown') as state,
+		COALESCE(zip, 'Unknown') as zip_code
+	FROM raw.soda_evictions
+	) se
+LEFT JOIN staging.dim_Location dl 
+	ON se.neighborhood = dl.neighborhood
+	AND se.supervisor_district = dl.supervisor_district
+	AND se.city = dl.city
+	AND se.state = dl.state
+	AND se.zip_code = dl.zip_code
+WHERE 
+	dl.location_key IS NULL;
+	
+
+INSERT INTO prod.dim_Location (location_key, neighborhood, supervisor_district, city, state, zip_code)
+SELECT location_key, neighborhood, supervisor_district, city, state, zip_code
+FROM staging.dim_Location
+ON CONFLICT (location_key)
+DO NOTHING;
