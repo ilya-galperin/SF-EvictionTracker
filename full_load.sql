@@ -183,7 +183,7 @@ SELECT
 	COALESCE(d2.date_key, -1) as constraints_date_key,
 	f.address as street_address
 FROM raw.soda_evictions f
-LEFT JOIN tmp_reason_facts r on f.eviction_id = r.eviction_id
+LEFT JOIN tmp_reason_facts r ON f.eviction_id = r.eviction_id
 LEFT JOIN staging.dim_Location l 
 	ON COALESCE(f.neighborhood, 'Unknown') = l.neighborhood
 	AND COALESCE(f.supervisor_district, 'Unknown') = l.supervisor_district
