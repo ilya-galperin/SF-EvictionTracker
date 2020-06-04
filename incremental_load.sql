@@ -41,12 +41,8 @@ VALUES ( 'M080633', 'z0001', '2020-01-01', '2020-06-01', 'addrTest', 'cityTest',
 
 TRUNCATE TABLE staging.fact_Evictions;
 
---- WONT NEED TO DO THIS PART
-TRUNCATE TABLE staging.dim_Location;
-INSERT INTO staging.dim_Location (location_key, neighborhood, supervisor_district, city, state, zip_code)
-SELECT location_key, neighborhood, supervisor_district, city, state, zip_code
-FROM prod.dim_Location;
---
+
+-- Populate Location Dimension
 
 INSERT INTO staging.dim_Location (neighborhood, supervisor_district, city, state, zip_code)
 SELECT 
@@ -73,19 +69,86 @@ LEFT JOIN staging.dim_Location dl
 WHERE 
 	dl.location_key IS NULL;
 	
+	
+-- Populate Reason Bridge Table
+
+SELECT DISTINCT
+	reason_group_key,
+	ARRAY_AGG(reason_key ORDER BY reason_key ASC) as rk_array
+INTO TEMP tmp_existing_reason_groups
+FROM staging.br_Reason_Group
+GROUP BY reason_group_key; --123
+
+SELECT 
+	concat_reason,
+	ARRAY_AGG(reason_key ORDER BY reason_key ASC) as rk_array
+INTO TEMP tmp_new_reason_groups
+FROM (
+	SELECT DISTINCT
+		string_to_array(TRIM(TRAILING '|' FROM (CASE WHEN concat_reason = '' THEN 'Unknown' ELSE concat_reason END)), '|') as concat_reason,
+		unnest(string_to_array(TRIM(TRAILING '|' FROM (CASE WHEN concat_reason = '' THEN 'Unknown' ELSE concat_reason END)), '|')) unnested_reason
+	FROM (
+		SELECT DISTINCT
+			CASE WHEN non_payment = 'true' THEN 'non_payment|' ELSE '' END||
+			CASE WHEN breach = 'true' THEN 'breach|' ELSE '' END||
+			CASE WHEN nuisance = 'true' THEN 'nuisance|' ELSE '' END||
+			CASE WHEN illegal_use = 'true' THEN 'illegal_use|' ELSE '' END||
+			CASE WHEN failure_to_sign_renewal = 'true' THEN 'failure_to_sign_renewal|' ELSE '' END||
+			CASE WHEN access_denial = 'true' THEN 'access_denial|' ELSE '' END||
+			CASE WHEN unapproved_subtenant = 'true' THEN 'unapproved_subtenant|' ELSE '' END||
+			CASE WHEN owner_move_in = 'true' THEN 'owner_move_in|' ELSE '' END||
+			CASE WHEN demolition = 'true' THEN 'demolition|' ELSE '' END||
+			CASE WHEN capital_improvement = 'true' THEN 'capital_improvement|' ELSE '' END||
+			CASE WHEN substantial_rehab = 'true' THEN 'substantial_rehab|' ELSE '' END||
+			CASE WHEN ellis_act_withdrawal = 'true' THEN 'ellis_act_withdrawal|' ELSE '' END||
+			CASE WHEN condo_conversion = 'true' THEN 'condo_conversion|' ELSE '' END||
+			CASE WHEN roommate_same_unit = 'true' THEN 'roommate_same_unit|' ELSE '' END||
+			CASE WHEN other_cause = 'true' THEN 'other_cause|' ELSE '' END||
+			CASE WHEN late_payments = 'true' THEN 'late_payments|' ELSE '' END||
+			CASE WHEN lead_remediation = 'true' THEN 'lead_remediation|' ELSE '' END||
+			CASE WHEN development = 'true' THEN 'development|' ELSE '' END||
+			CASE WHEN good_samaritan_ends = 'true' THEN 'good_samaritan_ends|' ELSE '' END
+				as concat_reason
+		FROM raw.soda_evictions
+		) se1
+	GROUP BY concat_reason
+	) se2
+JOIN staging.dim_Reason r ON se2.unnested_reason = r.reason_code
+GROUP BY concat_reason; --22
+
+INSERT INTO staging.br_Reason_Group (reason_group_key, reason_key)
+SELECT
+	final_grp.max_key + new_grp.tmp_group_key as reason_group_key,
+	new_grp.reason_key as reason_key
+FROM (
+	SELECT DISTINCT
+		ROW_NUMBER() OVER(ORDER BY concat_reason) as tmp_group_key,
+		concat_reason,
+		unnest(n.rk_array) as reason_key
+	FROM tmp_new_reason_groups n --22
+	LEFT JOIN tmp_existing_reason_groups e ON n.rk_array = e.rk_array
+	WHERE e.reason_group_key IS NULL
+	) new_grp
+LEFT JOIN (SELECT MAX(reason_group_key) max_key FROM staging.br_Reason_Group) final_grp ON 1=1
+ORDER BY reason_group_key, reason_key;
+
+DROP TABLE tmp_existing_reason_groups;
+DROP TABLE tmp_new_reason_groups;
+
+
+-- Migrate to Production Schema
 
 INSERT INTO prod.dim_Location (location_key, neighborhood, supervisor_district, city, state, zip_code)
 SELECT location_key, neighborhood, supervisor_district, city, state, zip_code
 FROM staging.dim_Location
-ON CONFLICT (location_key) DO NOTHING;
-	
-	
--- CREATE INDEXES ON THE BR STAGING & PRD TABLE	IN INIT DB SCHEMA
--- CREATE ARRAY LIST FROM NEW FACTS
--- REBUILD ARRAY LIST FROM STAGING BRIDGE/REASON TABLES, BRIDGE KEY + ARRAY LIST 
--- JOIN ARRAY LIST ON BRIDGE KEY ARRAY LIST, IF DOES NOT EXIST THEN CREATE NEW BRIDGE KEY
--- JOIN UPDATED BRIDGE TABLE BACK TO THE RAW FACTS ON THE ARRAYS OF BOTH TO GET THE BRIDGE KEY FOR FACT TABLE
+	ON CONFLICT (location_key) DO NOTHING;	
 
-
+INSERT INTO prod.br_Reason_Group (reason_group_key, reason_key)
+SELECT stg.reason_group_key, stg.reason_key 
+FROM staging.br_Reason_Group stg
+LEFT JOIN prod.br_Reason_Group prd ON stg.reason_group_key = prd.reason_group_key
+								   AND stg.reason_key = prd.reason_key
+WHERE 
+	prd.reason_group_key IS NULL;
 
 
