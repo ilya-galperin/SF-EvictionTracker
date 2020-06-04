@@ -37,4 +37,3 @@ VALUES ( 'M080633', 'z0001', '2020-01-01', '2020-06-01', 'addrTest', 'cityTest',
 		'false', 'false', 'false', 'false', 'false',
 		'true', 'false', 'false')
 *****************************************************************************************************/
--- Populate Location Dimension
