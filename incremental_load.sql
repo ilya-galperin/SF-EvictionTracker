@@ -40,13 +40,13 @@ VALUES ( 'M080633', 'z0001', '2020-01-01', '2020-06-01', 'addrTest', 'cityTest',
 
 
 TRUNCATE TABLE staging.fact_Evictions;
-TRUNCATE TABLE staging.dim_Location;
-TRUNCATE TABLE staging.br_Reason_Group
 
+--- WONT NEED TO DO THIS PART
+TRUNCATE TABLE staging.dim_Location;
 INSERT INTO staging.dim_Location (location_key, neighborhood, supervisor_district, city, state, zip_code)
 SELECT location_key, neighborhood, supervisor_district, city, state, zip_code
 FROM prod.dim_Location;
-
+--
 
 INSERT INTO staging.dim_Location (neighborhood, supervisor_district, city, state, zip_code)
 SELECT 
@@ -77,5 +77,14 @@ WHERE
 INSERT INTO prod.dim_Location (location_key, neighborhood, supervisor_district, city, state, zip_code)
 SELECT location_key, neighborhood, supervisor_district, city, state, zip_code
 FROM staging.dim_Location
-ON CONFLICT (location_key)
-DO NOTHING;
+ON CONFLICT (location_key) DO NOTHING;
+	
+	
+-- CREATE ARRAY LIST FROM NEW FACTS
+-- REBUILD ARRAY LIST FROM STAGING BRIDGE/REASON TABLES, BRIDGE KEY + ARRAY LIST 
+-- JOIN ARRAY LIST ON BRIDGE KEY ARRAY LIST, IF DOES NOT EXIST THEN CREATE NEW BRIDGE KEY
+-- JOIN UPDATED BRIDGE TABLE BACK TO THE RAW FACTS ON THE ARRAYS OF BOTH TO GET THE BRIDGE KEY FOR FACT TABLE
+
+
+
+
