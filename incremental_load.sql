@@ -132,10 +132,17 @@ ORDER BY reason_group_key, reason_key;
 DROP TABLE tmp_existing_reason_groups;
 DROP TABLE tmp_new_reason_groups;
 
-					    
+					    	    
 -- Populate Staging Fact Table
 					    
 TRUNCATE TABLE staging.fact_Evictions;
+
+SELECT DISTINCT
+	reason_group_key,
+	ARRAY_AGG(reason_key ORDER BY reason_key ASC) as rk_array
+INTO TEMP tmp_existing_reason_groups
+FROM staging.br_Reason_Group
+GROUP BY reason_group_key; --125
 
 SELECT 
 	eviction_id,
@@ -174,21 +181,14 @@ FROM (
 JOIN staging.dim_Reason r ON se2.unnested_reason = r.reason_code	
 GROUP BY se2.eviction_id; --267
 
-
 SELECT
 	eviction_id, 
 	reason_group_key
 INTO tmp_reason_group_lookup
 FROM tmp_fct_reason_groups f
-JOIN (
-	SELECT DISTINCT
-		reason_group_key,
-		ARRAY_AGG(reason_key ORDER BY reason_key ASC) as rk_array
-	FROM staging.br_Reason_Group
-	GROUP BY reason_group_key
-	) d ON f.rk_array = d.rk_array;	--267			    
+JOIN tmp_existing_reason_groups d ON f.rk_array = d.rk_array;	--267			    
 		
-		
+-- INSERT INTO staging.fact_Evictions		
 SELECT
 	f.eviction_id as eviction_key,
 	COALESCE(l.location_key, -1) as location_key,
@@ -207,8 +207,9 @@ LEFT JOIN staging.dim_Location l
 LEFT JOIN staging.dim_Date d1 ON f.file_date = d1.date
 LEFT JOIN staging.dim_Date d2 ON f.constraints_date = d2.date;
 
-
-DROP TABLE tmp_fct_reason_groups
+DROP TABLE tmp_existing_reason_groups;
+DROP TABLE tmp_fct_reason_groups;
+DROP TABLE tmp_reason_group_lookup;
 
 
 -- Merge Into Production Schema
