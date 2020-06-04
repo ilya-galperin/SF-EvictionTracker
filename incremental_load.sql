@@ -1,3 +1,4 @@
+/********************************** DUMMY DATA ********************************************************************
 TRUNCATE TABLE raw.soda_evictions;
 
 INSERT INTO raw.soda_evictions (eviction_id, raw_id, created_at, updated_at, address, city, state, zip, file_date, 
@@ -37,8 +38,7 @@ VALUES ( 'M080633', 'z0001', '2020-01-01', '2020-06-01', 'addrTest', 'cityTest',
 		'false', 'false', 'false', 'false', 'false',
 		'false', 'false', 'false', 'false', 'false',
 		'true', 'false', 'false')
-
-
+*****************************************************************************************************/
 TRUNCATE TABLE staging.fact_Evictions;
 
 
@@ -135,8 +135,29 @@ ORDER BY reason_group_key, reason_key;
 DROP TABLE tmp_existing_reason_groups;
 DROP TABLE tmp_new_reason_groups;
 
+					    
+-- Populate Staging Fact Table
 
--- Migrate to Production Schema
+SELECT
+	f.eviction_id as eviction_key,
+	COALESCE(l.location_key, -1) as location_key,
+	--r.reason_group_key as reason_group_key,
+	COALESCE(d1.date_key, -1) as file_date_key,
+	COALESCE(d2.date_key, -1) as constraints_date_key,
+	f.address as street_address
+FROM raw.soda_evictions f
+-- JOIN TO REASON BRIDGE
+LEFT JOIN staging.dim_Location l 
+	ON COALESCE(f.neighborhood, 'Unknown') = l.neighborhood
+	AND COALESCE(f.supervisor_district, 'Unknown') = l.supervisor_district
+	AND COALESCE(f.city, 'Unknown') = l.city
+	AND COALESCE(f.state, 'Unknown') = l.state
+	AND COALESCE(f.zip, 'Unknown') = l.zip_code
+LEFT JOIN staging.dim_Date d1 ON f.file_date = d1.date
+LEFT JOIN staging.dim_Date d2 ON f.constraints_date = d2.date;
+
+
+-- Merge Into Production Schema
 
 INSERT INTO prod.dim_Location (location_key, neighborhood, supervisor_district, city, state, zip_code)
 SELECT location_key, neighborhood, supervisor_district, city, state, zip_code
@@ -152,4 +173,7 @@ LEFT JOIN prod.br_Reason_Group prd
 WHERE 
 	prd.reason_group_key IS NULL;
 
+
+
+-- CREATE INDEXES ON THE BR STAGING & PRD TABLE	IN INIT DB SCHEMA	
 
