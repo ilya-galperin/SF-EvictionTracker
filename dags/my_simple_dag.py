@@ -23,7 +23,7 @@ def respond():
 
 default_args = {
     'owner': 'airflow',
-    'start_date': dt.datetime(2018, 9, 24, 10, 00, 00),
+    'start_date': dt.datetime(2020, 6, 8, 10, 00, 00),
     'concurrency': 1,
     'retries': 0
 }
