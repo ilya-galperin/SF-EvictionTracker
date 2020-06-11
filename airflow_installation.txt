@@ -1,0 +1,90 @@
+$0.0416 per Hour t3.medium
+$0.10 per GB-month of provisioned storage EBS
+
+STEP 1 - Launch EC2 Instance:
+- t3.medium
+- 12gb storage
+- launch-wizard-3 security group to open TCP Port 8080
+- associate elastic IP 
+
+
+STEP 2 - Install Postgres Server on EC2:
+run:
+sudo apt-get update
+sudo apt-get install python-psycopg2
+sudo apt-get install postgresql postgresql-contrib
+
+
+Step 3 - Create OS User airflow
+run:
+sudo adduser airflow
+sudo usermod -aG sudo airflow
+su - airflow
+
+Note: From here on, make sure you are logged in as airflow user.
+
+
+Step 4 - Create Postgres Metadatabase and User Access
+run: 
+sudo -u postgres psql
+
+in postgres prompt: 
+CREATE USER airflow PASSWORD 'password';
+CREATE DATABASE airflow;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO airflow;
+\q 
+
+
+Step 5 - Change Postgres Connection Config
+run:
+sudo nano /etc/postgresql/10/main/pg_hba.conf
+
+Change this line -
+# IPv4 local connections:
+host    all             all             127.0.0.1/32         md5
+To this line - 
+# IPv4 local connections:
+host    all             all             0.0.0.0/0            trust
+
+run:
+sudo nano /etc/postgresql/10/main/postgresql.conf
+
+Change this line - 
+#listen_addresses = ‘localhost’ # what IP address(es) to listen on
+To this line -
+listen_addresses = ‘*’ # what IP address(es) to listen on
+
+restart postgres server:
+sudo service postgresql restart
+
+
+Step 6 - Install Airflow
+
+run:
+su - airflow
+sudo apt-get install python3-pip
+sudo python3 -m pip install apache-airflow[postgres,s3,aws]
+
+run:
+airflow initdb
+
+
+Step 7 - Connect Airflow to Postgres
+
+run:
+nano /home/airflow/airflow/airflow.cfg
+
+Change lines -
+sql_alchemy_conn = postgresql+psycopg2://airflow:password@localhost:5432/airflow
+executor = LocalExecutor
+load_examples = False
+
+run:
+airflow initdb
+
+
+Step 7 - Add DAGs:
+mkdir /home/airflow/airflow/dags/
+cd /home/airflow/airflow/dags/
+touch tutorial.py
+nano tutorial.py
