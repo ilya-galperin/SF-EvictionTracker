@@ -88,3 +88,57 @@ mkdir /home/airflow/airflow/dags/
 cd /home/airflow/airflow/dags/
 touch tutorial.py
 nano tutorial.py
+
+
+Step 6: Setup Airflow Webserver and Scheduler to start automatically
+We are almost there. The final thing we need to do is to ensure airflow starts up when your ec2 instance starts.
+
+sudo nano /etc/systemd/system/airflow-webserver.service
+
+Paste the following into the file created above
+
+[Unit]
+Description=Airflow webserver daemon
+After=network.target postgresql.service
+Wants=postgresql.service
+[Service]
+EnvironmentFile=/etc/environment
+User=airflow
+Group=airflow
+Type=simple
+ExecStart= /usr/local/bin/airflow webserver
+Restart=on-failure
+RestartSec=5s
+PrivateTmp=true
+[Install]
+WantedBy=multi-user.target
+
+Next we will create the following file to enable scheduler service
+
+sudo nano /etc/systemd/system/airflow-scheduler.service
+
+Paste the following
+
+[Unit]
+Description=Airflow scheduler daemon
+After=network.target postgresql.service
+Wants=postgresql.service
+[Service]
+EnvironmentFile=/etc/environment
+User=airflow
+Group=airflow
+Type=simple
+ExecStart=/usr/local/bin/airflow scheduler
+Restart=always
+RestartSec=5s
+[Install]
+WantedBy=multi-user.target
+
+Next enable these services and check their status
+
+sudo systemctl enable airflow-webserver.service
+sudo systemctl enable airflow-scheduler.service
+sudo systemctl start airflow-scheduler
+sudo systemctl start airflow-webserver
+
+Just restart the EC2 instance you should have the Airflow UI look like below
