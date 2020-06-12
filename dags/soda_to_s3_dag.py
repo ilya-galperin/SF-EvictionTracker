@@ -5,9 +5,6 @@ from operators.soda_to_s3_operator import SodaToS3Operator
 from airflow.utils.dates import days_ago
 from datetime import timedelta
 
-
-soda_params = """$query=SELECT:*,* WHERE :created_at > '2020-04-04' OR :updated_at > '2020-04-04'
-                           ORDER BY :id LIMIT 100"""
 soda_headers = {
     'keyId':'########################',
     'keySecret':'########################################',
@@ -28,14 +25,13 @@ default_args = {
 with DAG('SodaToS3',
 		default_args=default_args,
 		description='soda to s3 dag',
-		max_active_runs=3,
+		max_active_runs=1,
 		schedule_interval=None) as dag:
  
 	op1 = SodaToS3Operator(
-		task_id='taskA',
+		task_id='soda_to_s3',
 		http_conn_id='_soda',
 		headers=soda_headers,
-		data=soda_params,
 		dag=dag
 		)
 
