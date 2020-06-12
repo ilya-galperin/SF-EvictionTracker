@@ -12,8 +12,8 @@ from datetime import timedelta
 soda_params = """$query=SELECT:*,* WHERE :created_at > '2020-04-04' OR :updated_at > '2020-04-04'
                            ORDER BY :id LIMIT 100"""
 soda_headers = {
-    'keyId':'AKIARRQAVZWWXWGAZDPP',
-    'keySecret':'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',
+    'keyId':'######################',
+    'keySecret':'#####################################',
 	'Accept':'application/json'
 }
 
