@@ -1,14 +1,12 @@
-# The DAG object; we'll need to instantiate a DAG
 from airflow import DAG
-# Operators; we need this to operate!
 from operators.soda_to_s3_operator import SodaToS3Operator
 from airflow.utils.dates import days_ago
 from datetime import timedelta
 
 soda_headers = {
-    'keyId':'########################',
-    'keySecret':'########################################',
-	'Accept':'application/json'
+    'keyId':'#################',
+    'keySecret':'############################',
+    'Accept':'application/json'
 }
 
 default_args = {
@@ -32,6 +30,11 @@ with DAG('SodaToS3',
 		task_id='soda_to_s3',
 		http_conn_id='_soda',
 		headers=soda_headers,
+		s3_conn_id='_s3',
+		s3_bucket='sf-evictionmeter',
+		s3_directory='soda_jsons',
+		size_check=True,
+		max_bytes=500000000,
 		dag=dag
 		)
 
