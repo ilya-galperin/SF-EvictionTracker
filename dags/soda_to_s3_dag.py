@@ -6,8 +6,8 @@ from airflow.utils.dates import days_ago
 from datetime import timedelta
 
 soda_headers = {
-    'keyId':'AKIARRQAVZWWXWGAZDPP',
-    'keySecret':'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',
+    'keyId':'############',
+    'keySecret':'#################',
 	'Accept':'application/json'
 }
 
