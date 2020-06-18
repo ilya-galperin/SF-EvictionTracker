@@ -78,7 +78,7 @@ class S3ToPostgresOperator(BaseOperator):
 		
 		print('inserting...')
 		
-		pg_hook.insert_rows(schema + '.' + table, ['1','2','3'])
+		pg_hook.insert_rows(f'{schema}.{table}', ['1','2','3'])
 		
 		
 		cur.executemany(f"""
