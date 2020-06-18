@@ -64,7 +64,6 @@ class S3ToPostgresOperator(BaseOperator):
 		
 		pg_hook = PostgresHook(self.postgres_conn_id)
 		pg_conn = pg_hook.get_conn()
-		
 		cur = pg_conn.cursor()
 		
 		if isinstance(self.schema, tuple):
