@@ -20,9 +20,9 @@ class SodaToS3Operator(BaseOperator):
 	:param headers:			Dictionary containing optional API connection keys (keyId, keySecret, Accept)
 	:param s3_conn_id:		S3 Connection ID
 	:param s3_bucket:		S3 Bucket Destination
-	:param s3_directory:		S3 Directory Destination
+	:param s3_directory:	S3 Directory Destination
 	:param method:			Request type for API
-	:param http_conn_id:		SODA API Connection ID
+	:param http_conn_id:	SODA API Connection ID
 	:param size_check:		Boolean indicating whether to run a size check prior to upload to S3
 	:param max_bytes:		Maximum number of bytes to allow for a single S3 upload		
 	"""
