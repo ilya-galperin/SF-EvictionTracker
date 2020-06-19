@@ -49,7 +49,7 @@ class S3ToPostgresOperator(BaseOperator):
 	
 	def execute(self, context):
 		"""
-		Executes the operator, including running a max filesize check if enabled. 
+		Executes the operator.
 		"""
 		s3_hook = S3Hook(self.s3_conn_id)
 		s3_session = s3_hook.get_session()
