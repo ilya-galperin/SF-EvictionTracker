@@ -15,8 +15,8 @@ class S3ToPostgresOperator(BaseOperator):
 	:param s3_conn_id:			S3 Connection ID
 	:param s3_bucket:			S3 Bucket Destination
 	:param s3_prefix:			S3 File Prefix
-	:param source_data_type:	S3 Source File data type
-	:param postgres_conn_id: 	Postgres Connection ID
+	:param source_data_type:		S3 Source File data type
+	:param postgres_conn_id: 		Postgres Connection ID
 	:param db_schema:			Postgres Target Schema
 	:param db_table:			Postgres Target Table
 	:param get_latest:			if True, pulls data last modified file in S3 path
