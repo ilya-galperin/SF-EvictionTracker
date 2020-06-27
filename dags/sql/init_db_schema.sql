@@ -46,11 +46,56 @@ CREATE UNLOGGED TABLE raw.soda_evictions (
 -- Staging
 CREATE TABLE staging.dim_Location (
 	location_key serial PRIMARY KEY,
-	neighborhood text,
-	supervisor_district text,
 	city text,
 	state text,
 	zip_code text
+);
+
+CREATE TABLE staging.dim_District (
+	district_key serial PRIMARY KEY,
+	district text,
+	population integer,
+	households integer,
+	percent_asian numeric,
+	percent_black numeric,
+	percent_white numeric,
+	percent_native_am numeric,
+	percent_pacific_isle numeric,
+	percent_other_race numeric,
+	percent_latin numeric,
+	median_age numeric,
+	total_units integer,
+	percent_owner_occupied numeric,
+	percent_renter_occupied numeric,
+	median_rent_as_perc_of_income numeric,
+	median_household_income numeric,
+	median_family_income numeric,
+	per_capita_income numeric,
+	perc_in_poverty numeric
+);
+
+CREATE TABLE staging.dim_Neighborhood (
+	neighborhood_key serial PRIMARY KEY,
+	neighborhood text,
+	neighborhood_alt_name text,
+	population integer,
+	households integer,
+	percent_asian numeric,
+	percent_black numeric,
+	percent_white numeric,
+	percent_native_am numeric,
+	percent_pacific_isle numeric,
+	percent_other_race numeric,
+	percent_latin numeric,
+	median_age numeric,
+	total_units integer,
+	percent_owner_occupied numeric,
+	percent_renter_occupied numeric,
+	median_rent_as_perc_of_income numeric,
+	median_household_income numeric,
+	median_family_income numeric,
+	per_capita_income numeric,
+	perc_in_poverty numeric
 );
 
 CREATE TABLE staging.dim_Reason (
@@ -93,6 +138,8 @@ CREATE TABLE staging.dim_Date (
 CREATE TABLE staging.fact_Evictions (
 	eviction_key text PRIMARY KEY,
 	location_key int,
+	district_key int,
+	neighborhood_key int,
 	reason_group_key int,
 	file_date_key int,
 	constraints_date_key int,
@@ -103,11 +150,56 @@ CREATE TABLE staging.fact_Evictions (
 -- Prod
 CREATE TABLE prod.dim_Location (
 	location_key serial PRIMARY KEY,
-	neighborhood text,
-	supervisor_district text,
 	city text,
 	state text,
 	zip_code text
+);
+
+CREATE TABLE prod.dim_District (
+	district_key serial PRIMARY KEY,
+	district text,
+	population integer,
+	households integer,
+	percent_asian numeric,
+	percent_black numeric,
+	percent_white numeric,
+	percent_native_am numeric,
+	percent_pacific_isle numeric,
+	percent_other_race numeric,
+	percent_latin numeric,
+	median_age numeric,
+	total_units integer,
+	percent_owner_occupied numeric,
+	percent_renter_occupied numeric,
+	median_rent_as_perc_of_income numeric,
+	median_household_income numeric,
+	median_family_income numeric,
+	per_capita_income numeric,
+	perc_in_poverty numeric
+);
+
+CREATE TABLE prod.dim_Neighborhood (
+	neighborhood_key serial PRIMARY KEY,
+	neighborhood text,
+	neighborhood_alt_name text,
+	population integer,
+	households integer,
+	percent_asian numeric,
+	percent_black numeric,
+	percent_white numeric,
+	percent_native_am numeric,
+	percent_pacific_isle numeric,
+	percent_other_race numeric,
+	percent_latin numeric,
+	median_age numeric,
+	total_units integer,
+	percent_owner_occupied numeric,
+	percent_renter_occupied numeric,
+	median_rent_as_perc_of_income numeric,
+	median_household_income numeric,
+	median_family_income numeric,
+	per_capita_income numeric,
+	perc_in_poverty numeric
 );
 
 CREATE TABLE prod.dim_Reason (
@@ -150,6 +242,8 @@ CREATE TABLE prod.dim_Date (
 CREATE TABLE prod.fact_Evictions (
 	eviction_key text PRIMARY KEY,
 	location_key int,
+	district_key int,
+	neighborhood_key int,
 	reason_group_key int,
 	file_date_key int,
 	constraints_date_key int,
