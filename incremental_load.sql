@@ -110,26 +110,26 @@ FROM (
 		SELECT 
 			eviction_id,
 			CASE WHEN non_payment = 'true' THEN 'non_payment|' ELSE '' END||
-					CASE WHEN breach = 'true' THEN 'breach|' ELSE '' END||
-					CASE WHEN nuisance = 'true' THEN 'nuisance|' ELSE '' END||
-					CASE WHEN illegal_use = 'true' THEN 'illegal_use|' ELSE '' END||
-					CASE WHEN failure_to_sign_renewal = 'true' THEN 'failure_to_sign_renewal|' ELSE '' END||
-					CASE WHEN access_denial = 'true' THEN 'access_denial|' ELSE '' END||
-					CASE WHEN unapproved_subtenant = 'true' THEN 'unapproved_subtenant|' ELSE '' END||
-					CASE WHEN owner_move_in = 'true' THEN 'owner_move_in|' ELSE '' END||
-					CASE WHEN demolition = 'true' THEN 'demolition|' ELSE '' END||
-					CASE WHEN capital_improvement = 'true' THEN 'capital_improvement|' ELSE '' END||
-					CASE WHEN substantial_rehab = 'true' THEN 'substantial_rehab|' ELSE '' END||
-					CASE WHEN ellis_act_withdrawal = 'true' THEN 'ellis_act_withdrawal|' ELSE '' END||
-					CASE WHEN condo_conversion = 'true' THEN 'condo_conversion|' ELSE '' END||
-					CASE WHEN roommate_same_unit = 'true' THEN 'roommate_same_unit|' ELSE '' END||
-					CASE WHEN other_cause = 'true' THEN 'other_cause|' ELSE '' END||
-					CASE WHEN late_payments = 'true' THEN 'late_payments|' ELSE '' END||
-					CASE WHEN lead_remediation = 'true' THEN 'lead_remediation|' ELSE '' END||
-					CASE WHEN development = 'true' THEN 'development|' ELSE '' END||
-					CASE WHEN good_samaritan_ends = 'true' THEN 'good_samaritan_ends|' ELSE '' END
-						as concat_reason
-			FROM raw.soda_evictions
+			CASE WHEN breach = 'true' THEN 'breach|' ELSE '' END||
+			CASE WHEN nuisance = 'true' THEN 'nuisance|' ELSE '' END||
+			CASE WHEN illegal_use = 'true' THEN 'illegal_use|' ELSE '' END||
+			CASE WHEN failure_to_sign_renewal = 'true' THEN 'failure_to_sign_renewal|' ELSE '' END||
+			CASE WHEN access_denial = 'true' THEN 'access_denial|' ELSE '' END||
+			CASE WHEN unapproved_subtenant = 'true' THEN 'unapproved_subtenant|' ELSE '' END||
+			CASE WHEN owner_move_in = 'true' THEN 'owner_move_in|' ELSE '' END||
+			CASE WHEN demolition = 'true' THEN 'demolition|' ELSE '' END||
+			CASE WHEN capital_improvement = 'true' THEN 'capital_improvement|' ELSE '' END||
+			CASE WHEN substantial_rehab = 'true' THEN 'substantial_rehab|' ELSE '' END||
+			CASE WHEN ellis_act_withdrawal = 'true' THEN 'ellis_act_withdrawal|' ELSE '' END||
+			CASE WHEN condo_conversion = 'true' THEN 'condo_conversion|' ELSE '' END||
+			CASE WHEN roommate_same_unit = 'true' THEN 'roommate_same_unit|' ELSE '' END||
+			CASE WHEN other_cause = 'true' THEN 'other_cause|' ELSE '' END||
+			CASE WHEN late_payments = 'true' THEN 'late_payments|' ELSE '' END||
+			CASE WHEN lead_remediation = 'true' THEN 'lead_remediation|' ELSE '' END||
+			CASE WHEN development = 'true' THEN 'development|' ELSE '' END||
+			CASE WHEN good_samaritan_ends = 'true' THEN 'good_samaritan_ends|' ELSE '' END
+				as concat_reason
+		FROM raw.soda_evictions
 		) se1
 	) se2
 JOIN staging.dim_Reason r ON se2.unnested_reason = r.reason_code	
