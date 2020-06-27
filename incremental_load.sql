@@ -1,26 +1,20 @@
 
 -- Populate Location Dimension
 
-INSERT INTO staging.dim_Location (neighborhood, supervisor_district, city, state, zip_code)
+INSERT INTO staging.dim_Location (city, state, zip_code)
 SELECT 
-	se.neighborhood,
-	se.supervisor_district,
 	se.city,
 	se.state,
 	se.zip_code
 FROM (
 	SELECT DISTINCT
-		COALESCE(neighborhood, 'Unknown') as neighborhood,
-		COALESCE(supervisor_district, 'Unknown') as supervisor_district,
 		COALESCE(city, 'Uknown') as city,
 		COALESCE(state, 'Unknown') as state,
 		COALESCE(zip, 'Unknown') as zip_code
 	FROM raw.soda_evictions
 	) se
 LEFT JOIN staging.dim_Location dl 
-	ON se.neighborhood = dl.neighborhood
-	AND se.supervisor_district = dl.supervisor_district
-	AND se.city = dl.city
+	ON se.city = dl.city
 	AND se.state = dl.state
 	AND se.zip_code = dl.zip_code
 WHERE 
@@ -161,9 +155,7 @@ SELECT
 FROM raw.soda_evictions f
 JOIN tmp_reason_group_lookup r ON f.eviction_id = r.eviction_id
 LEFT JOIN staging.dim_Location l 
-	ON COALESCE(f.neighborhood, 'Unknown') = l.neighborhood
-	AND COALESCE(f.supervisor_district, 'Unknown') = l.supervisor_district
-	AND COALESCE(f.city, 'Unknown') = l.city
+	ON COALESCE(f.city, 'Unknown') = l.city
 	AND COALESCE(f.state, 'Unknown') = l.state
 	AND COALESCE(f.zip, 'Unknown') = l.zip_code
 LEFT JOIN staging.dim_Date d1 ON f.file_date = d1.date
@@ -177,8 +169,8 @@ DROP TABLE tmp_reason_group_lookup;
 					    
 -- Merge Into Production Schema
 
-INSERT INTO prod.dim_Location (location_key, neighborhood, supervisor_district, city, state, zip_code)
-SELECT location_key, neighborhood, supervisor_district, city, state, zip_code
+INSERT INTO prod.dim_Location (location_key, city, state, zip_code)
+SELECT location_key, city, state, zip_code
 FROM staging.dim_Location
 	ON CONFLICT (location_key) DO NOTHING;	
 
