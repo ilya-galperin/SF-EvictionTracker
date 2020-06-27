@@ -1,13 +1,10 @@
-
 -- Populate Location Dimension
 
-INSERT INTO staging.dim_Location (location_key, neighborhood, supervisor_district, city, state, zip_code)
-SELECT -1, 'Uknown', 'Uknown', 'Unknown', 'Uknown', 'Unknown';
+INSERT INTO staging.dim_Location (location_key, city, state, zip_code)
+SELECT -1, 'Unknown', 'Uknown', 'Unknown';
 
-INSERT INTO staging.dim_Location (neighborhood, supervisor_district, city, state, zip_code)
+INSERT INTO staging.dim_Location (city, state, zip_code)
 SELECT DISTINCT
-	COALESCE(neighborhood, 'Unknown') as neighborhood,
-	COALESCE(supervisor_district, 'Unknown') as supervisor_district,
 	COALESCE(city, 'Uknown') as city,
 	COALESCE(state, 'Unknown') as state,
 	COALESCE(zip, 'Unknown') as zip_code
@@ -182,9 +179,7 @@ SELECT
 FROM raw.soda_evictions f
 LEFT JOIN tmp_reason_facts r ON f.eviction_id = r.eviction_id
 LEFT JOIN staging.dim_Location l 
-	ON COALESCE(f.neighborhood, 'Unknown') = l.neighborhood
-	AND COALESCE(f.supervisor_district, 'Unknown') = l.supervisor_district
-	AND COALESCE(f.city, 'Unknown') = l.city
+	ON COALESCE(f.city, 'Unknown') = l.city
 	AND COALESCE(f.state, 'Unknown') = l.state
 	AND COALESCE(f.zip, 'Unknown') = l.zip_code
 LEFT JOIN staging.dim_Date d1 ON f.file_date = d1.date
@@ -196,8 +191,8 @@ DROP TABLE tmp_reason_facts;
 		     
 -- Migrate to Production Schema
 
-INSERT INTO prod.dim_Location (location_key, neighborhood, supervisor_district, city, state, zip_code)
-SELECT location_key, neighborhood, supervisor_district, city, state, zip_code
+INSERT INTO prod.dim_Location (location_key, city, state, zip_code)
+SELECT location_key, city, state, zip_code
 FROM staging.dim_Location;
 
 INSERT INTO prod.dim_Reason (reason_key, reason_code, reason_desc)
@@ -220,4 +215,4 @@ FROM staging.dim_Date;
 
 INSERT INTO prod.fact_Evictions (eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address)
 SELECT eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address
-FROM staging.fact_Evictions;		
+FROM staging.fact_Evictions;	
