@@ -42,6 +42,28 @@ CREATE UNLOGGED TABLE raw.soda_evictions (
 	neighborhood text
 );
 
+CREATE UNLOGGED TABLE raw.neighborhood_data (
+	acs_name text,
+	db_name text,
+	population text,
+	households text,
+	perc_asian text,
+	perc_black text,
+	perc_white text,
+	perc_nat_am text,
+	perc_nat_pac text,
+	perc_other text,
+	perc_latin text,
+	median_age text,
+	total_units text,
+	perc_owner_occupied text,
+	perc_renter_occupied text,
+	median_rent_as_perc_of_income text,
+	median_household_income text,
+	median_family_income text,
+	per_capita_income text,
+	perc_in_poverty text
+);
 
 -- Staging
 CREATE TABLE staging.dim_Location (
@@ -249,3 +271,6 @@ CREATE TABLE prod.fact_Evictions (
 	constraints_date_key int,
 	street_address text
 );
+
+
+
