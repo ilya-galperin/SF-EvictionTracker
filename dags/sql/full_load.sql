@@ -46,11 +46,11 @@ SELECT
 	households::int,
 	perc_asian::numeric as percent_asian,
 	perc_black::numeric as percent_black,
-	perc_white::numeric  as percent_white,
+	perc_white::numeric as percent_white,
 	perc_nat_am::numeric as percent_native_am,
 	perc_nat_pac::numeric as percent_pacific_isle,
 	perc_other::numeric as percent_other_race,
-	perc_latin::numeric  as percent_latin,
+	perc_latin::numeric as percent_latin,
 	median_age::numeric,
 	total_units::int,
 	perc_owner_occupied::numeric as percent_owner_occupied,
@@ -235,22 +235,27 @@ FROM (
 JOIN tmp_reason_group t_grp ON f_grp.concat_reason = t_grp.concat_reason;	
 
 
-INSERT INTO staging.fact_evictions (eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address)
+INSERT INTO staging.fact_evictions (eviction_key, district_key, neighborhood_key, location_key, reason_group_key, file_date_key, 
+									constraints_date_key, street_address)
 SELECT 
 	f.eviction_id as eviction_key,
+	COALESCE(d.district_key, -1) as district_key,
+	COALESCE(n.neighborhood_key, -1) as neighborhood_key,
 	COALESCE(l.location_key, -1) as location_key,
-	r.reason_group_key as reason_group_key,
-	COALESCE(d1.date_key, -1) as file_date_key,
-	COALESCE(d2.date_key, -1) as constraints_date_key,
+	reason_group_key,
+	COALESCE(dt1.date_key, -1) as file_date_key,
+	COALESCE(dt2.date_key, -1) as constraints_date_key,
 	f.address as street_address
 FROM raw.soda_evictions f
 LEFT JOIN tmp_reason_facts r ON f.eviction_id = r.eviction_id
+LEFT JOIN staging.dim_district d ON f.supervisor_district = d.district
+LEFT JOIN staging.dim_neighborhood n ON f.neighborhood = n.neighborhood_alt_name
 LEFT JOIN staging.dim_location l 
 	ON COALESCE(f.city, 'Unknown') = l.city
 	AND COALESCE(f.state, 'Unknown') = l.state
 	AND COALESCE(f.zip, 'Unknown') = l.zip_code
-LEFT JOIN staging.dim_date d1 ON f.file_date = d1.date
-LEFT JOIN staging.dim_date d2 ON f.constraints_date = d2.date;
+LEFT JOIN staging.dim_date dt1 ON f.file_date = dt1.date
+LEFT JOIN staging.dim_date dt2 ON f.constraints_date = dt2.date;
 
 DROP TABLE tmp_reason_group;
 DROP TABLE tmp_reason_facts;
@@ -258,17 +263,41 @@ DROP TABLE tmp_reason_facts;
 		     
 -- Migrate to Production Schema
 
+INSERT INTO prod.dim_district 
+	(district, population, households, percent_asian, percent_black, percent_white, percent_native_am,
+	percent_pacific_isle, percent_other_race, percent_latin, median_age, total_units, 
+	percent_owner_occupied, percent_renter_occupied, median_rent_as_perc_of_income, median_household_income, 
+	median_family_income, per_capita_income, percent_in_poverty)
+SELECT 
+	district, population, households, percent_asian, percent_black, percent_white, percent_native_am,
+	percent_pacific_isle, percent_other_race, percent_latin, median_age, total_units, 
+	percent_owner_occupied, percent_renter_occupied, median_rent_as_perc_of_income, median_household_income, 
+	median_family_income, per_capita_income, percent_in_poverty
+FROM staging.dim_district;
+
+INSERT INTO prod.dim_neighborhood
+	(neighborhood, neighborhood_alt_name, population, households, percent_asian, percent_black, percent_white, 
+	percent_native_am, percent_pacific_isle, percent_other_race, percent_latin, median_age, total_units, 
+	percent_owner_occupied, percent_renter_occupied, median_rent_as_perc_of_income, median_household_income, 
+	median_family_income, per_capita_income, percent_in_poverty)
+SELECT
+	neighborhood, neighborhood_alt_name, population, households, percent_asian, percent_black, percent_white, 
+	percent_native_am, percent_pacific_isle, percent_other_race, percent_latin, median_age, total_units, 
+	percent_owner_occupied, percent_renter_occupied, median_rent_as_perc_of_income, median_household_income, 
+	median_family_income, per_capita_income, percent_in_poverty
+FROM staging.dim_neighborhood;
+
 INSERT INTO prod.dim_location (location_key, city, state, zip_code)
 SELECT location_key, city, state, zip_code
-FROM staging.dim_Location;
+FROM staging.dim_location;
 
 INSERT INTO prod.dim_reason (reason_key, reason_code, reason_desc)
 SELECT reason_key, reason_code, reason_desc
-FROM staging.dim_Reason;
+FROM staging.dim_reason;
 
 INSERT INTO prod.br_reason_group (reason_group_key, reason_key)
 SELECT reason_group_key, reason_key
-FROM staging.br_Reason_Group;
+FROM staging.br_reason_group;
 
 INSERT INTO prod.dim_date 
 	(date_key, date, year, month, month_name, day, day_of_year, weekday_name, calendar_week, 
@@ -278,8 +307,12 @@ SELECT
 	date_key, date, year, month, month_name, day, day_of_year, weekday_name, calendar_week, 
 	formatted_date, quartal, year_quartal, year_month, year_calendar_week, weekend, us_holiday, period, 
 	cw_start, cw_end, month_start, month_end
-FROM staging.dim_Date;
+FROM staging.dim_date;
 
-INSERT INTO prod.fact_evictions (eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address)
-SELECT eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address
-FROM staging.fact_Evictions;
+INSERT INTO prod.fact_evictions 
+	(eviction_key, district_key, neighborhood_key, location_key, reason_group_key, 
+	file_date_key, constraints_date_key, street_address)
+SELECT 
+	eviction_key, district_key, neighborhood_key, location_key, reason_group_key, 
+	file_date_key, constraints_date_key, street_address
+FROM staging.fact_evictions;
