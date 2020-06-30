@@ -185,10 +185,10 @@ SELECT
 	     WHEN TO_CHAR(datum, 'MMDD') > '1225' OR TO_CHAR(datum, 'MMDD') <= '0106' THEN 'Winter break'
 		 ELSE 'Normal' END
 			as period,
-	datum + (1 - EXTRACT(isodow FROM datum))::integer as cw_start,
-	datum + (7 - EXTRACT(isodow FROM datum))::integer as cw_end,
-	datum + (1 - EXTRACT(DAY FROM datum))::integer as month_start,
-	(datum + (1 - EXTRACT(DAY FROM datum))::integer + '1 month'::interval)::date - '1 day'::interval as month_end
+	datum + (1 - EXTRACT(isodow FROM datum))::int as cw_start,
+	datum + (7 - EXTRACT(isodow FROM datum))::int as cw_end,
+	datum + (1 - EXTRACT(DAY FROM datum))::int as month_start,
+	(datum + (1 - EXTRACT(DAY FROM datum))::int + '1 month'::interval)::date - '1 day'::interval as month_end
 FROM (
 	SELECT '1997-01-01'::date + SEQUENCE.DAY as datum
 	FROM generate_series(0,10956) as SEQUENCE(DAY)
@@ -271,13 +271,13 @@ SELECT reason_group_key, reason_key
 FROM staging.br_Reason_Group;
 
 INSERT INTO prod.dim_date 
-		(date_key, date, year, month, month_name, day, day_of_year, weekday_name, calendar_week, 
-		formatted_date, quartal, year_quartal, year_month, year_calendar_week, weekend, us_holiday,
-		period, cw_start, cw_end, month_start, month_end)
+	(date_key, date, year, month, month_name, day, day_of_year, weekday_name, calendar_week, 
+	formatted_date, quartal, year_quartal, year_month, year_calendar_week, weekend, us_holiday,
+	period, cw_start, cw_end, month_start, month_end)
 SELECT 
-		date_key, date, year, month, month_name, day, day_of_year, weekday_name, calendar_week, 
-		formatted_date, quartal, year_quartal, year_month, year_calendar_week, weekend, us_holiday, period, 
-		cw_start, cw_end, month_start, month_end
+	date_key, date, year, month, month_name, day, day_of_year, weekday_name, calendar_week, 
+	formatted_date, quartal, year_quartal, year_month, year_calendar_week, weekend, us_holiday, period, 
+	cw_start, cw_end, month_start, month_end
 FROM staging.dim_Date;
 
 INSERT INTO prod.fact_evictions (eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address)
