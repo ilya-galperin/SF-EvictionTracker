@@ -153,15 +153,15 @@ JOIN staging.dim_Reason r ON r.reason_code = grp.unnested;
 -- Populate Date Dimension Table
 
 INSERT INTO staging.dim_date (date_key, date, year, month, month_name, day, day_of_year, weekday_name, calendar_week, 
-							formatted_date, quartal, year_quartal, year_month, year_calendar_week, weekend, us_holiday,
-							period, cw_start, cw_end, month_start, month_end)
+				formatted_date, quartal, year_quartal, year_month, year_calendar_week, weekend, us_holiday,
+				period, cw_start, cw_end, month_start, month_end)
 SELECT -1, '1900-01-01', -1, -1, 'Unknown', -1, -1, 'Unknown', -1, 'Unknown', 'Unknown', 'Unknown', 'Unknown',
 		'Unknown', 'Unknown', 'Unknown', 'Unknown', '1900-01-01', '1900-01-01', '1900-01-01', '1900-01-01';
 		
 
 INSERT INTO staging.dim_date (date_key, date, year, month, month_name, day, day_of_year, weekday_name, calendar_week, 
-							formatted_date, quartal, year_quartal, year_month, year_calendar_week, weekend, us_holiday,
-							period, cw_start, cw_end, month_start, month_end)
+				formatted_date, quartal, year_quartal, year_month, year_calendar_week, weekend, us_holiday,
+				period, cw_start, cw_end, month_start, month_end)
 SELECT
 	TO_CHAR(datum, 'yyyymmdd')::int as date_key,
 	datum as date,
