@@ -28,9 +28,8 @@ with DAG('eviction-tracker_full_load',
 		max_active_runs=1,
 		schedule_interval=None) as dag:
  
-	"""
 	op1 = SodaToS3Operator(
-		task_id='move_from_soda_to_s3',
+		task_id='get_evictions_data',
 		http_conn_id='_soda',
 		headers=soda_headers,
 		s3_conn_id='_s3',
@@ -47,13 +46,12 @@ with DAG('eviction-tracker_full_load',
 		sql='sql/initialize_target_db.sql',
 		dag=dag
 	)
-	"""
 	
 	op3 = S3ToPostgresOperator(
-		task_id='load_into_staging',
+		task_id='load_evictions_data',
 		s3_conn_id='_s3',
 		s3_bucket='sf-evictionmeter',
-		s3_prefix='soda_jsons/soda_evictions_import_',
+		s3_prefix='soda_jsons/soda_evictions_import',
 		source_data_type='json',
 		postgres_conn_id='_postgres_rds_evictions',
 		schema='raw',
@@ -62,7 +60,32 @@ with DAG('eviction-tracker_full_load',
 		dag=dag
 	)
 	
-	op3
+	op4 = S3ToPostgresOperator(
+		task_id='load_neighborhood_data',
+		s3_conn_id='_s3',
+		s3_bucket='sf-evictionmeter',
+		s3_prefix='census_csv/sf_by_neighborhood',
+		source_data_type='csv',
+		header=True,
+		postgres_conn_id='_postgres_rds_evictions',
+		schema='raw',
+		table='neighborhood_data',
+		get_latest=True,
+		dag=dag
+	)
 	
+	op5 = S3ToPostgresOperator(
+		task_id='load_district_data',
+		s3_conn_id='_s3',
+		s3_bucket='sf-evictionmeter',
+		s3_prefix='census_csv/sf_by_district',
+		source_data_type='csv',
+		header=True,
+		postgres_conn_id='_postgres_rds_evictions',
+		schema='raw',
+		table='district_data',
+		get_latest=True,
+		dag=dag
+	)
 	
-	#op1 >> op2 >> op3
+	op1 >> op2 >> (op3, op4, op5)
