@@ -14,7 +14,7 @@ from contextlib import closing
 class S3ToPostgresOperator(BaseOperator):
 	""" 
 	Collects data from a file hosted on AWS S3 and loads it into a Postgres table. 
-	Current version supports JSON and CSV but requires pre-defined data model.
+	Current version supports JSON and CSV sources but requires pre-defined data model.
 	
 	:param s3_conn_id:			S3 Connection ID
 	:param s3_bucket:			S3 Bucket Destination
