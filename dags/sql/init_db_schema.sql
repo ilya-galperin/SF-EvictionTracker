@@ -88,14 +88,7 @@ CREATE UNLOGGED TABLE raw.neighborhood_data (
 );
 
 -- Staging
-CREATE TABLE staging.dim_Location (
-	location_key serial PRIMARY KEY,
-	city text,
-	state text,
-	zip_code text
-);
-
-CREATE TABLE staging.dim_District (
+CREATE TABLE staging.dim_district (
 	district_key serial PRIMARY KEY,
 	district text,
 	population integer,
@@ -118,7 +111,7 @@ CREATE TABLE staging.dim_District (
 	perc_in_poverty numeric
 );
 
-CREATE TABLE staging.dim_Neighborhood (
+CREATE TABLE staging.dim_neighborhood (
 	neighborhood_key serial PRIMARY KEY,
 	neighborhood text,
 	neighborhood_alt_name text,
@@ -142,20 +135,27 @@ CREATE TABLE staging.dim_Neighborhood (
 	perc_in_poverty numeric
 );
 
-CREATE TABLE staging.dim_Reason (
+CREATE TABLE staging.dim_location (
+	location_key serial PRIMARY KEY,
+	city text,
+	state text,
+	zip_code text
+);
+
+CREATE TABLE staging.dim_reason (
 	reason_key serial PRIMARY KEY,
 	reason_code text,
 	reason_desc text
 );
 
-CREATE TABLE staging.br_Reason_Group (
+CREATE TABLE staging.br_reason_group (
 	reason_group_key int,
 	reason_key int
 );	
-CREATE INDEX reason_group_key_idx ON staging.br_Reason_Group (reason_group_key);
-CREATE INDEX reason_key_idx ON staging.br_Reason_Group (reason_key);
+CREATE INDEX reason_group_key_idx ON staging.br_reason_group (reason_group_key);
+CREATE INDEX reason_key_idx ON staging.br_reason_group (reason_key);
 
-CREATE TABLE staging.dim_Date (
+CREATE TABLE staging.dim_date (
 	date_key int PRIMARY KEY,
 	date date,
 	year int,
@@ -179,7 +179,7 @@ CREATE TABLE staging.dim_Date (
 	month_end date
 );
 
-CREATE TABLE staging.fact_Evictions (
+CREATE TABLE staging.fact_evictions (
 	eviction_key text PRIMARY KEY,
 	location_key int,
 	district_key int,
@@ -192,14 +192,7 @@ CREATE TABLE staging.fact_Evictions (
 
 
 -- Prod
-CREATE TABLE prod.dim_Location (
-	location_key serial PRIMARY KEY,
-	city text,
-	state text,
-	zip_code text
-);
-
-CREATE TABLE prod.dim_District (
+CREATE TABLE prod.dim_district (
 	district_key serial PRIMARY KEY,
 	district text,
 	population integer,
@@ -222,7 +215,7 @@ CREATE TABLE prod.dim_District (
 	perc_in_poverty numeric
 );
 
-CREATE TABLE prod.dim_Neighborhood (
+CREATE TABLE prod.dim_neighborhood (
 	neighborhood_key serial PRIMARY KEY,
 	neighborhood text,
 	neighborhood_alt_name text,
@@ -246,20 +239,27 @@ CREATE TABLE prod.dim_Neighborhood (
 	perc_in_poverty numeric
 );
 
-CREATE TABLE prod.dim_Reason (
+CREATE TABLE prod.dim_location (
+	location_key serial PRIMARY KEY,
+	city text,
+	state text,
+	zip_code text
+);
+
+CREATE TABLE prod.dim_reason (
 	reason_key serial PRIMARY KEY,
 	reason_code text,
 	reason_desc text
 );
 
-CREATE TABLE prod.br_Reason_Group (
+CREATE TABLE prod.br_reason_group (
 	reason_group_key int,
 	reason_key int
 );	
-CREATE INDEX reason_group_key_idx ON prod.br_Reason_Group (reason_group_key);
-CREATE INDEX reason_key_idx ON prod.br_Reason_Group (reason_key);
+CREATE INDEX reason_group_key_idx ON prod.br_reason_group (reason_group_key);
+CREATE INDEX reason_key_idx ON prod.br_reason_group (reason_key);
 
-CREATE TABLE prod.dim_Date (
+CREATE TABLE prod.dim_date (
 	date_key int PRIMARY KEY,
 	date date,
 	year int,
@@ -283,7 +283,7 @@ CREATE TABLE prod.dim_Date (
 	month_end date
 );
 
-CREATE TABLE prod.fact_Evictions (
+CREATE TABLE prod.fact_evictions (
 	eviction_key text PRIMARY KEY,
 	location_key int,
 	district_key int,
