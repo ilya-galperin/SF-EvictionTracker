@@ -43,7 +43,7 @@ with DAG('eviction-tracker_full_load',
 	op2 = PostgresOperator(
 		task_id='initialize_target_db',
 		postgres_conn_id='_postgres_rds_evictions',
-		sql='sql/initialize_target_db.sql',
+		sql='sql/init_db_schema.sql',
 		dag=dag
 	)
 	
@@ -88,4 +88,11 @@ with DAG('eviction-tracker_full_load',
 		dag=dag
 	)
 	
-	op1 >> op2 >> (op3, op4, op5)
+	op6 = PostgresOperator(
+		task_id='execute_full_load',
+		postgres_conn_id='_postgres_rds_evictions',
+		sql='sql/full_load.sql',
+		dag=dag
+	)
+	
+	op1 >> op2 >> (op3, op4, op5) >> op6
