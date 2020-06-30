@@ -24,7 +24,7 @@ class S3ToPostgresOperator(BaseOperator):
 	:param postgres_conn_id: 		Postgres Connection ID
 	:param db_schema:			Postgres Target Schema
 	:param db_table:			Postgres Target Table
-	:param get_latest:			if True, pulls data last modified file in S3 path
+	:param get_latest:			if True, pulls from last modified file in S3 path
 	"""
 	
 	@apply_defaults
