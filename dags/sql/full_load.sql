@@ -1,9 +1,74 @@
+-- Populate District Dimension
+
+INSERT INTO staging.dim_district (district_key, district)
+SELECT -1, 'Unknown';
+
+INSERT INTO staging.dim_district (district, population, households, percent_asian, percent_black, percent_white, percent_native_am,
+				percent_pacific_isle, percent_other_race, percent_latin, median_age, total_units, 
+				percent_owner_occupied, percent_renter_occupied, median_rent_as_perc_of_income, median_household_income, 
+				median_family_income, per_capita_income, percent_in_poverty)
+SELECT 
+	district,
+	population::int,
+	households::int,
+	perc_asian::numeric as percent_asian,
+	perc_black::numeric as percent_black,
+	perc_white::numeric as percent_white,
+	perc_nat_am::numeric as percent_native_am,
+	perc_nat_pac::numeric as percent_pacific_isle,
+	perc_other::numeric as percent_other_race,
+	perc_latin::numeric as percent_latin,
+	median_age::numeric,
+	total_units::int,
+	perc_owner_occupied::numeric as percent_owner_occupied,
+	perc_renter_occupied::numeric as percent_renter_occupied,
+	median_rent_as_perc_of_income::numeric,
+	median_household_income::numeric,
+	median_family_income::numeric,
+	per_capita_income::numeric,
+	perc_in_poverty::numeric as percent_in_poverty
+FROM raw.district_data;	
+
+
+-- Populate Neighborhood Dimension
+
+INSERT INTO staging.dim_neighborhood (neighborhood_key, neighborhood)
+SELECT -1, 'Unknown';
+
+INSERT INTO staging.dim_neighborhood (neighborhood, neighborhood_alt_name, population, households, percent_asian, percent_black, percent_white, 
+				percent_native_am, percent_pacific_isle, percent_other_race, percent_latin, median_age, total_units, 
+				percent_owner_occupied, percent_renter_occupied, median_rent_as_perc_of_income, median_household_income, 
+				median_family_income, per_capita_income, percent_in_poverty)
+SELECT 
+	acs_name as neighborhood,
+	db_name as neighborhood_alt_name,
+	population::int,
+	households::int,
+	perc_asian::numeric as percent_asian,
+	perc_black::numeric as percent_black,
+	perc_white::numeric  as percent_white,
+	perc_nat_am::numeric as percent_native_am,
+	perc_nat_pac::numeric as percent_pacific_isle,
+	perc_other::numeric as percent_other_race,
+	perc_latin::numeric  as percent_latin,
+	median_age::numeric,
+	total_units::int,
+	perc_owner_occupied::numeric as percent_owner_occupied,
+	perc_renter_occupied::numeric as percent_renter_occupied,
+	median_rent_as_perc_of_income::numeric,
+	median_household_income::numeric,
+	median_family_income::numeric,
+	per_capita_income::numeric,
+	perc_in_poverty::numeric as percent_in_poverty
+FROM raw.neighborhood_data;	
+
+
 -- Populate Location Dimension
 
-INSERT INTO staging.dim_Location (location_key, city, state, zip_code)
+INSERT INTO staging.dim_location (location_key, city, state, zip_code)
 SELECT -1, 'Unknown', 'Unknown', 'Unknown';
 
-INSERT INTO staging.dim_Location (city, state, zip_code)
+INSERT INTO staging.dim_location (city, state, zip_code)
 SELECT DISTINCT
 	COALESCE(city, 'Unknown') as city,
 	COALESCE(state, 'Unknown') as state,
@@ -15,10 +80,10 @@ WHERE
 
 -- Populate Reason Dimension
 
-INSERT INTO staging.dim_Reason (reason_key, reason_code, reason_desc)
+INSERT INTO staging.dim_reason (reason_key, reason_code, reason_desc)
 VALUES (-1, 'Unknown', 'Unknown');
 
-INSERT INTO staging.dim_Reason (reason_code, reason_desc)
+INSERT INTO staging.dim_reason (reason_code, reason_desc)
 VALUES 	('non_payment', 'Non-Payment'),
 	('breach', 'Breach'),
 	('nuisance', 'Nuisance'),
@@ -77,7 +142,7 @@ FROM (
 		) f1
 	) f2;
 
-INSERT INTO staging.br_Reason_Group (reason_group_key, reason_key)
+INSERT INTO staging.br_reason_group (reason_group_key, reason_key)
 SELECT DISTINCT
 	group_key as reason_group_key,
 	reason_key
@@ -87,18 +152,18 @@ JOIN staging.dim_Reason r ON r.reason_code = grp.unnested;
 
 -- Populate Date Dimension Table
 
-INSERT INTO staging.dim_Date (date_key, date, year, month, month_name, day, day_of_year, weekday_name, calendar_week, 
+INSERT INTO staging.dim_date (date_key, date, year, month, month_name, day, day_of_year, weekday_name, calendar_week, 
 							formatted_date, quartal, year_quartal, year_month, year_calendar_week, weekend, us_holiday,
 							period, cw_start, cw_end, month_start, month_end)
 SELECT -1, '1900-01-01', -1, -1, 'Unknown', -1, -1, 'Unknown', -1, 'Unknown', 'Unknown', 'Unknown', 'Unknown',
 		'Unknown', 'Unknown', 'Unknown', 'Unknown', '1900-01-01', '1900-01-01', '1900-01-01', '1900-01-01';
 		
 
-INSERT INTO staging.dim_Date (date_key, date, year, month, month_name, day, day_of_year, weekday_name, calendar_week, 
+INSERT INTO staging.dim_date (date_key, date, year, month, month_name, day, day_of_year, weekday_name, calendar_week, 
 							formatted_date, quartal, year_quartal, year_month, year_calendar_week, weekend, us_holiday,
 							period, cw_start, cw_end, month_start, month_end)
 SELECT
-	TO_CHAR(datum, 'yyyymmdd')::INT as date_key,
+	TO_CHAR(datum, 'yyyymmdd')::int as date_key,
 	datum as date,
 	EXTRACT(YEAR FROM datum) as year,
 	EXTRACT(MONTH FROM datum) as month,
@@ -120,12 +185,12 @@ SELECT
 	     WHEN TO_CHAR(datum, 'MMDD') > '1225' OR TO_CHAR(datum, 'MMDD') <= '0106' THEN 'Winter break'
 		 ELSE 'Normal' END
 			as period,
-	datum + (1 - EXTRACT(isodow FROM datum))::INTEGER as cw_start,
-	datum + (7 - EXTRACT(isodow FROM datum))::INTEGER as cw_end,
-	datum + (1 - EXTRACT(DAY FROM datum))::INTEGER as month_start,
-	(datum + (1 - EXTRACT(DAY FROM datum))::INTEGER + '1 month'::INTERVAL)::DATE - '1 day'::INTERVAL as month_end
+	datum + (1 - EXTRACT(isodow FROM datum))::integer as cw_start,
+	datum + (7 - EXTRACT(isodow FROM datum))::integer as cw_end,
+	datum + (1 - EXTRACT(DAY FROM datum))::integer as month_start,
+	(datum + (1 - EXTRACT(DAY FROM datum))::integer + '1 month'::interval)::date - '1 day'::interval as month_end
 FROM (
-	SELECT '1997-01-01'::DATE + SEQUENCE.DAY as datum
+	SELECT '1997-01-01'::date + SEQUENCE.DAY as datum
 	FROM generate_series(0,10956) as SEQUENCE(DAY)
 	GROUP BY SEQUENCE.DAY
      ) DQ;
@@ -170,7 +235,7 @@ FROM (
 JOIN tmp_reason_group t_grp ON f_grp.concat_reason = t_grp.concat_reason;	
 
 
-INSERT INTO staging.fact_Evictions (eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address)
+INSERT INTO staging.fact_evictions (eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address)
 SELECT 
 	f.eviction_id as eviction_key,
 	COALESCE(l.location_key, -1) as location_key,
@@ -180,12 +245,12 @@ SELECT
 	f.address as street_address
 FROM raw.soda_evictions f
 LEFT JOIN tmp_reason_facts r ON f.eviction_id = r.eviction_id
-LEFT JOIN staging.dim_Location l 
+LEFT JOIN staging.dim_location l 
 	ON COALESCE(f.city, 'Unknown') = l.city
 	AND COALESCE(f.state, 'Unknown') = l.state
 	AND COALESCE(f.zip, 'Unknown') = l.zip_code
-LEFT JOIN staging.dim_Date d1 ON f.file_date = d1.date
-LEFT JOIN staging.dim_Date d2 ON f.constraints_date = d2.date;
+LEFT JOIN staging.dim_date d1 ON f.file_date = d1.date
+LEFT JOIN staging.dim_date d2 ON f.constraints_date = d2.date;
 
 DROP TABLE tmp_reason_group;
 DROP TABLE tmp_reason_facts;
@@ -193,19 +258,19 @@ DROP TABLE tmp_reason_facts;
 		     
 -- Migrate to Production Schema
 
-INSERT INTO prod.dim_Location (location_key, city, state, zip_code)
+INSERT INTO prod.dim_location (location_key, city, state, zip_code)
 SELECT location_key, city, state, zip_code
 FROM staging.dim_Location;
 
-INSERT INTO prod.dim_Reason (reason_key, reason_code, reason_desc)
+INSERT INTO prod.dim_reason (reason_key, reason_code, reason_desc)
 SELECT reason_key, reason_code, reason_desc
 FROM staging.dim_Reason;
 
-INSERT INTO prod.br_Reason_Group (reason_group_key, reason_key)
+INSERT INTO prod.br_reason_group (reason_group_key, reason_key)
 SELECT reason_group_key, reason_key
 FROM staging.br_Reason_Group;
 
-INSERT INTO prod.dim_Date 
+INSERT INTO prod.dim_date 
 		(date_key, date, year, month, month_name, day, day_of_year, weekday_name, calendar_week, 
 		formatted_date, quartal, year_quartal, year_month, year_calendar_week, weekend, us_holiday,
 		period, cw_start, cw_end, month_start, month_end)
@@ -215,6 +280,6 @@ SELECT
 		cw_start, cw_end, month_start, month_end
 FROM staging.dim_Date;
 
-INSERT INTO prod.fact_Evictions (eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address)
+INSERT INTO prod.fact_evictions (eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address)
 SELECT eviction_key, location_key, reason_group_key, file_date_key, constraints_date_key, street_address
-FROM staging.fact_Evictions;	
+FROM staging.fact_Evictions;
