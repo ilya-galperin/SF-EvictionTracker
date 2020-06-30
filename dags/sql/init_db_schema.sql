@@ -108,7 +108,7 @@ CREATE TABLE staging.dim_district (
 	median_household_income numeric,
 	median_family_income numeric,
 	per_capita_income numeric,
-	perc_in_poverty numeric
+	percent_in_poverty numeric
 );
 
 CREATE TABLE staging.dim_neighborhood (
@@ -132,7 +132,7 @@ CREATE TABLE staging.dim_neighborhood (
 	median_household_income numeric,
 	median_family_income numeric,
 	per_capita_income numeric,
-	perc_in_poverty numeric
+	percent_in_poverty numeric
 );
 
 CREATE TABLE staging.dim_location (
@@ -212,7 +212,7 @@ CREATE TABLE prod.dim_district (
 	median_household_income numeric,
 	median_family_income numeric,
 	per_capita_income numeric,
-	perc_in_poverty numeric
+	percent_in_poverty numeric
 );
 
 CREATE TABLE prod.dim_neighborhood (
@@ -236,7 +236,7 @@ CREATE TABLE prod.dim_neighborhood (
 	median_household_income numeric,
 	median_family_income numeric,
 	per_capita_income numeric,
-	perc_in_poverty numeric
+	percent_in_poverty numeric
 );
 
 CREATE TABLE prod.dim_location (
