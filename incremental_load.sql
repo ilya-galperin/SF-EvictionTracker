@@ -8,7 +8,7 @@ SELECT
 	se.zip_code
 FROM (
 	SELECT DISTINCT
-		COALESCE(city, 'Uknown') as city,
+		COALESCE(city, 'Unknown') as city,
 		COALESCE(state, 'Unknown') as state,
 		COALESCE(zip, 'Unknown') as zip_code
 	FROM raw.soda_evictions
