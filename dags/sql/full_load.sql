@@ -1,5 +1,5 @@
-# echo "" > /home/airflow/airflow/dags/sql/full_load.sql
-# nano /home/airflow/airflow/dags/sql/full_load.sql
+-- echo "" > /home/airflow/airflow/dags/sql/full_load.sql
+-- nano /home/airflow/airflow/dags/sql/full_load.sql
 
 -- Populate District Dimension
 
