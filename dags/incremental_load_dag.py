@@ -1,3 +1,7 @@
+# echo "" > /home/airflow/airflow/dags/incremental_load_dag.py
+# nano /home/airflow/airflow/dags/incremental_load_dag.py
+
+
 from airflow import DAG
 from airflow.operators.postgres_operator import PostgresOperator
 from operators.soda_to_s3_operator import SodaToS3Operator
@@ -8,7 +12,7 @@ from datetime import timedelta
 soda_headers = {
     'keyId':'############',
     'keySecret':'#################',
-	'Accept':'application/json'
+    'Accept':'application/json'
 }
 
 default_args = {
@@ -23,10 +27,10 @@ default_args = {
 }
 
 with DAG('eviction-tracker-incremental_load',
-		default_args=default_args,
-		description='Executes full load from SODA API to Production DW.',
-		max_active_runs=1,
-		schedule_interval=None) as dag:
+	default_args=default_args,
+	description='Executes full load from SODA API to Production DW.',
+	max_active_runs=1,
+	schedule_interval=None) as dag:
  
 	op1 = SodaToS3Operator(
 		task_id='get_evictions_data',
@@ -41,9 +45,9 @@ with DAG('eviction-tracker-incremental_load',
 	)
 	
 	op2 = PostgresOperator(
-		task_id='initialize_target_db',
+		task_id='truncate_target_tables',
 		postgres_conn_id='RDS_Evictions',
-		sql='sql/init_db_schema.sql',
+		sql='',
 		dag=dag
 	)
 	
@@ -89,9 +93,9 @@ with DAG('eviction-tracker-incremental_load',
 	)
 	
 	op6 = PostgresOperator(
-		task_id='execute_full_load',
+		task_id='execute_incremental_load',
 		postgres_conn_id='RDS_Evictions',
-		sql='sql/full_load.sql',
+		sql='',
 		dag=dag
 	)
 	
