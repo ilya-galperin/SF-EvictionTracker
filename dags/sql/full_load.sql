@@ -1,3 +1,6 @@
+# echo "" > /home/airflow/airflow/dags/sql/full_load.sql
+# nano /home/airflow/airflow/dags/sql/full_load.sql
+
 -- Populate District Dimension
 
 INSERT INTO staging.dim_district (district_key, district)
