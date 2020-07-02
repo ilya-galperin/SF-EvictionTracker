@@ -1,6 +1,3 @@
-# echo "" > /home/airflow/airflow/dags/full_load_dag.py
-# nano /home/airflow/airflow/dags/full_load_dag.py
-
 from airflow import DAG
 from airflow.operators.postgres_operator import PostgresOperator
 from operators.soda_to_s3_operator import SodaToS3Operator
@@ -11,7 +8,7 @@ from datetime import timedelta
 soda_headers = {
     'keyId':'############',
     'keySecret':'#################',
-	'Accept':'application/json'
+    'Accept':'application/json'
 }
 
 default_args = {
@@ -25,7 +22,7 @@ default_args = {
     'retry_delay': timedelta(seconds=30)
 }
 
-with DAG('eviction-tracker_full_load',
+with DAG('eviction-tracker-full_load',
 		default_args=default_args,
 		description='Executes full load from SODA API to Production DW.',
 		max_active_runs=1,
@@ -33,9 +30,9 @@ with DAG('eviction-tracker_full_load',
  
 	op1 = SodaToS3Operator(
 		task_id='get_evictions_data',
-		http_conn_id='_soda',
+		http_conn_id='API_Evictions',
 		headers=soda_headers,
-		s3_conn_id='_s3',
+		s3_conn_id='S3_Evictions',
 		s3_bucket='sf-evictionmeter',
 		s3_directory='soda_jsons',
 		size_check=True,
@@ -45,18 +42,18 @@ with DAG('eviction-tracker_full_load',
 	
 	op2 = PostgresOperator(
 		task_id='initialize_target_db',
-		postgres_conn_id='_postgres_rds_evictions',
+		postgres_conn_id='RDS_Evictions',
 		sql='sql/init_db_schema.sql',
 		dag=dag
 	)
 	
 	op3 = S3ToPostgresOperator(
 		task_id='load_evictions_data',
-		s3_conn_id='_s3',
+		s3_conn_id='S3_Evictions',
 		s3_bucket='sf-evictionmeter',
 		s3_prefix='soda_jsons/soda_evictions_import',
 		source_data_type='json',
-		postgres_conn_id='_postgres_rds_evictions',
+		postgres_conn_id='RDS_Evictions',
 		schema='raw',
 		table='soda_evictions',
 		get_latest=True,
@@ -65,12 +62,12 @@ with DAG('eviction-tracker_full_load',
 	
 	op4 = S3ToPostgresOperator(
 		task_id='load_neighborhood_data',
-		s3_conn_id='_s3',
+		s3_conn_id='S3_Evictions',
 		s3_bucket='sf-evictionmeter',
 		s3_prefix='census_csv/sf_by_neighborhood',
 		source_data_type='csv',
 		header=True,
-		postgres_conn_id='_postgres_rds_evictions',
+		postgres_conn_id='RDS_Evictions',
 		schema='raw',
 		table='neighborhood_data',
 		get_latest=True,
@@ -79,12 +76,12 @@ with DAG('eviction-tracker_full_load',
 	
 	op5 = S3ToPostgresOperator(
 		task_id='load_district_data',
-		s3_conn_id='_s3',
+		s3_conn_id='S3_Evictions',
 		s3_bucket='sf-evictionmeter',
 		s3_prefix='census_csv/sf_by_district',
 		source_data_type='csv',
 		header=True,
-		postgres_conn_id='_postgres_rds_evictions',
+		postgres_conn_id='RDS_Evictions',
 		schema='raw',
 		table='district_data',
 		get_latest=True,
@@ -93,7 +90,7 @@ with DAG('eviction-tracker_full_load',
 	
 	op6 = PostgresOperator(
 		task_id='execute_full_load',
-		postgres_conn_id='_postgres_rds_evictions',
+		postgres_conn_id='RDS_Evictions',
 		sql='sql/full_load.sql',
 		dag=dag
 	)
