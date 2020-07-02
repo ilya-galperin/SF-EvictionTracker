@@ -1,5 +1,5 @@
--- echo "" > /home/airflow/airflow/dags/sql/full_load.sql
--- nano /home/airflow/airflow/dags/sql/full_load.sql
+-- echo "" > /home/airflow/airflow/dags/sql/init_db_schema.sql
+-- nano /home/airflow/airflow/dags/sql/init_db_schema.sql
 
 DROP SCHEMA IF EXISTS raw CASCADE;
 DROP SCHEMA IF EXISTS staging CASCADE;
