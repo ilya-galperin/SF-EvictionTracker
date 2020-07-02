@@ -1,7 +1,6 @@
 # echo "" > /home/airflow/airflow/dags/incremental_load_dag.py
 # nano /home/airflow/airflow/dags/incremental_load_dag.py
 
-
 from airflow import DAG
 from airflow.operators.postgres_operator import PostgresOperator
 from operators.soda_to_s3_operator import SodaToS3Operator
@@ -28,7 +27,7 @@ default_args = {
 
 with DAG('eviction-tracker-incremental_load',
 	default_args=default_args,
-	description='Executes full load from SODA API to Production DW.',
+	description='Executes incremental load from SODA API & S3-hosted csv''s into Production DW.',
 	max_active_runs=1,
 	schedule_interval=None) as dag:
  
@@ -43,7 +42,7 @@ with DAG('eviction-tracker-incremental_load',
 		max_bytes=500000000,
 		dag=dag
 	)
-	
+	"""
 	op2 = PostgresOperator(
 		task_id='truncate_target_tables',
 		postgres_conn_id='RDS_Evictions',
@@ -100,3 +99,6 @@ with DAG('eviction-tracker-incremental_load',
 	)
 	
 	op1 >> op2 >> (op3, op4, op5) >> op6
+	"""
+	
+	op1
