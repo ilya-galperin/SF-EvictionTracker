@@ -1,3 +1,6 @@
+# echo "" > /home/airflow/airflow/dags/full_load_dag.py
+# nano /home/airflow/airflow/dags/full_load_dag.py
+
 from airflow import DAG
 from airflow.operators.postgres_operator import PostgresOperator
 from operators.soda_to_s3_operator import SodaToS3Operator
