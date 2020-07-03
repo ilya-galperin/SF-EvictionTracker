@@ -1,3 +1,6 @@
+# echo "" > /home/airflow/airflow/dags/incremental_load_dag.py
+# nano /home/airflow/airflow/dags/incremental_load_dag.py
+
 from airflow import DAG
 from airflow.operators.postgres_operator import PostgresOperator
 from airflow.operators.python_operator import ShortCircuitOperator
@@ -38,7 +41,7 @@ with DAG('eviction-tracker-incremental_load',
 		task_id='get_evictions_data',
 		http_conn_id='API_Evictions',
 		headers=soda_headers,
-		days_ago=5,
+		days_ago=31,
 		s3_conn_id='S3_Evictions',
 		s3_bucket='sf-evictionmeter',
 		s3_directory='soda_jsons',
@@ -101,6 +104,12 @@ with DAG('eviction-tracker-incremental_load',
 		get_latest=True,
 		dag=dag
 	)
-
 	
-	op1 >> op2 >> op3 >> (op4, op5, op6)
+	op7 = PostgresOperator(
+		task_id='execute_incremental_load',
+		postgres_conn_id='RDS_Evictions',
+		sql='sql/incremental_load.sql',
+		dag=dag
+	)
+	
+	op1 >> op2 >> op3 >> (op4, op5, op6) >> op7
