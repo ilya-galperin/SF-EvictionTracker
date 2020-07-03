@@ -270,7 +270,6 @@ LEFT JOIN staging.dim_date dt2 ON f.constraints_date = dt2.date;
 DROP TABLE tmp_existing_reason_groups;
 DROP TABLE tmp_fct_reason_groups;
 DROP TABLE tmp_reason_group_lookup;
-
 					    
 					    
 -- Merge Into Production Schema
