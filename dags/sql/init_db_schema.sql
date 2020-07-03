@@ -66,6 +66,7 @@ CREATE UNLOGGED TABLE raw.district_data (
 	per_capita_income text,
 	perc_in_poverty text
 );
+CREATE UNIQUE INDEX district_name_uniq_idx ON raw.district_data (district);
 
 CREATE UNLOGGED TABLE raw.neighborhood_data (
 	acs_name text,
@@ -89,6 +90,7 @@ CREATE UNLOGGED TABLE raw.neighborhood_data (
 	per_capita_income text,
 	perc_in_poverty text
 );
+CREATE UNIQUE INDEX neighborhood_name_uniq_idx ON raw.neighborhood_data (acs_name);
 
 -- Staging
 CREATE TABLE staging.dim_district (
@@ -113,6 +115,7 @@ CREATE TABLE staging.dim_district (
 	per_capita_income numeric,
 	percent_in_poverty numeric
 );
+CREATE UNIQUE INDEX district_name_uniq_idx ON staging.dim_district (district);
 
 CREATE TABLE staging.dim_neighborhood (
 	neighborhood_key serial PRIMARY KEY,
@@ -137,6 +140,7 @@ CREATE TABLE staging.dim_neighborhood (
 	per_capita_income numeric,
 	percent_in_poverty numeric
 );
+CREATE UNIQUE INDEX neighborhood_name_uniq_idx ON staging.dim_neighborhood (neighborhood);
 
 CREATE TABLE staging.dim_location (
 	location_key serial PRIMARY KEY,
