@@ -1,8 +1,6 @@
-# echo "" > /home/airflow/airflow/dags/incremental_load_dag.py
-# nano /home/airflow/airflow/dags/incremental_load_dag.py
-
 from airflow import DAG
 from airflow.operators.postgres_operator import PostgresOperator
+from airflow.operators.python_operator import ShortCircuitOperator
 from operators.soda_to_s3_operator import SodaToS3Operator
 from operators.s3_to_postgres_operator import S3ToPostgresOperator
 from airflow.utils.dates import days_ago
@@ -25,6 +23,11 @@ default_args = {
     'retry_delay': timedelta(seconds=30)
 }
 
+def get_size(**context):
+	val = context['ti'].xcom_pull(key='obj_len')
+	return True if val > 0 else False
+	
+
 with DAG('eviction-tracker-incremental_load',
 	default_args=default_args,
 	description='Executes incremental load from SODA API & S3-hosted csv''s into Production DW.',
@@ -35,6 +38,7 @@ with DAG('eviction-tracker-incremental_load',
 		task_id='get_evictions_data',
 		http_conn_id='API_Evictions',
 		headers=soda_headers,
+		days_ago=5,
 		s3_conn_id='S3_Evictions',
 		s3_bucket='sf-evictionmeter',
 		s3_directory='soda_jsons',
@@ -42,15 +46,22 @@ with DAG('eviction-tracker-incremental_load',
 		max_bytes=500000000,
 		dag=dag
 	)
-	"""
-	op2 = PostgresOperator(
-		task_id='truncate_target_tables',
-		postgres_conn_id='RDS_Evictions',
-		sql='',
+	
+	op2 = ShortCircuitOperator(
+		task_id='check_get_results',
+		python_callable=get_size,
+		provide_context=True,
 		dag=dag
 	)
 	
-	op3 = S3ToPostgresOperator(
+	op3 = PostgresOperator(
+		task_id='truncate_target_tables',
+		postgres_conn_id='RDS_Evictions',
+		sql='sql/trunc_target_tables.sql',
+		dag=dag
+	)
+	
+	op4 = S3ToPostgresOperator(
 		task_id='load_evictions_data',
 		s3_conn_id='S3_Evictions',
 		s3_bucket='sf-evictionmeter',
@@ -63,7 +74,7 @@ with DAG('eviction-tracker-incremental_load',
 		dag=dag
 	)
 	
-	op4 = S3ToPostgresOperator(
+	op5 = S3ToPostgresOperator(
 		task_id='load_neighborhood_data',
 		s3_conn_id='S3_Evictions',
 		s3_bucket='sf-evictionmeter',
@@ -77,7 +88,7 @@ with DAG('eviction-tracker-incremental_load',
 		dag=dag
 	)
 	
-	op5 = S3ToPostgresOperator(
+	op6 = S3ToPostgresOperator(
 		task_id='load_district_data',
 		s3_conn_id='S3_Evictions',
 		s3_bucket='sf-evictionmeter',
@@ -90,15 +101,6 @@ with DAG('eviction-tracker-incremental_load',
 		get_latest=True,
 		dag=dag
 	)
+
 	
-	op6 = PostgresOperator(
-		task_id='execute_incremental_load',
-		postgres_conn_id='RDS_Evictions',
-		sql='',
-		dag=dag
-	)
-	
-	op1 >> op2 >> (op3, op4, op5) >> op6
-	"""
-	
-	op1
+	op1 >> op2 >> op3 >> (op4, op5, op6)
