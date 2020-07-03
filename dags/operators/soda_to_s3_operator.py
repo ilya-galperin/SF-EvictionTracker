@@ -11,12 +11,22 @@ import json
 import sys
 
 
+class SizeExceededError(Exception):
+	"""Raised when max file size is exceeded"""
+	def __init__(self):
+		self.message = 'Max file size exceeded'
+
+	def __str__(self):
+		return f'SizeExceededError, {self.message}'
+
+
 class SodaToS3Operator(BaseOperator):
 	""" 
 	Queries the Socrata Open Data API using a SoQL string and uploads the results to an S3 bucket.
 	
 	:param endpoint:		Optional API connection endpoint
-	:param data:			Socrata SoQL string used to query API
+	:param data:			Custom Socrata SoQL string used to query API, overrides default get request
+	:param days_ago:		Restricts get request to updated/created records from specified date onward
 	:param headers:			Dictionary containing optional API connection keys (keyId, keySecret, Accept)
 	:param s3_conn_id:		S3 Connection ID
 	:param s3_bucket:		S3 Bucket Destination
@@ -31,6 +41,7 @@ class SodaToS3Operator(BaseOperator):
 	def __init__(self,
 		endpoint=None,
 		data=None,
+		days_ago=None,
 		headers=None,
 		s3_conn_id=None,
 		s3_bucket=None,
@@ -46,6 +57,7 @@ class SodaToS3Operator(BaseOperator):
 		
 		self.endpoint = endpoint
 		self.data = data
+		self.days_ago = days_ago
 		self.s3_conn_id = s3_conn_id
 		self.s3_bucket = s3_bucket
 		self.s3_directory = s3_directory
@@ -112,13 +124,19 @@ class SodaToS3Operator(BaseOperator):
 		
 		if self.data:
 			soql_filter = self.data
-		else:
-			soql_filter = """$query=SELECT:*,* WHERE :created_at > '2018-04-04' OR :updated_at > '2018-04-04'
+		elif self.days_ago:
+			current_dt = datetime.now()
+			target_dt = current_dt - timedelta(self.days_ago)
+			format_dt = target_dt.strftime("%Y-%m-%d")
+			soql_filter = f"""$query=SELECT:*,* WHERE :created_at > '{format_dt}' OR :updated_at > '{format_dt}'
 							   ORDER BY :id LIMIT 10000"""
-
+		else:
+			soql_filter = """$query=SELECT:*,* ORDER BY :id LIMIT 10000"""
+		
+		print('getting... ' + soql_filter)
+		
 		offset, counter = 0, 1
 		combined = []
-		
 		while True:
 			soql_filter_offset = soql_filter + f' OFFSET {offset}'
 			response = soda.run(endpoint=self.endpoint, data=soql_filter_offset, headers=self.headers)
@@ -132,24 +150,20 @@ class SodaToS3Operator(BaseOperator):
 			counter += 1
 
 		if self.size_check == True:
-			print(self.get_size(combined))
-			print(self.max_bytes)
-			# add exception
-
-		dest_s3 = S3Hook(self.s3_conn_id)
-		body_obj = 'soda_evictions_import_' + datetime.now().strftime("%Y-%m-%dT%H%M%S") + '.json'
+			print('actual size... ' + str(self.get_size(combined)))
+			print('max size... ' + str(self.max_bytes))
+			if self.get_size(combined) > self.max_bytes:
+				raise SizeExceededError
 		
-		dest_s3.load_string(
-			json.dumps(combined), 
-			key=self.s3_directory + '/' + body_obj, 
-			bucket_name=self.s3_bucket
-		)
+		dest_s3 = S3Hook(self.s3_conn_id)
+		
+		body_obj = 'soda_evictions_import_' + datetime.now().strftime("%Y-%m-%dT%H%M%S") + '.json'
 		
 		metadata = self.parse_metadata(response.headers)
 		meta_obj = 'logs/soda_evictions_import_log_' + datetime.now().strftime("%Y-%m-%dT%H%M%S")
-	
-		dest_s3.load_string(
-			json.dumps(metadata),
-			key=self.s3_directory + '/' + meta_obj, 
-			bucket_name=self.s3_bucket
-		)
+		
+		dest_s3.load_string(json.dumps(combined), key=self.s3_directory+'/'+body_obj, bucket_name=self.s3_bucket)
+		dest_s3.load_string(json.dumps(metadata), key=self.s3_directory+'/'+meta_obj, bucket_name=self.s3_bucket)
+		
+		# XCom used to skip downstream tasks if body object size is 0
+		self.xcom_push(context=context, key='obj_len', value=len(combined))
