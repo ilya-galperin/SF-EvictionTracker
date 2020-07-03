@@ -267,24 +267,24 @@ DROP TABLE tmp_reason_facts;
 -- Migrate to Production Schema
 
 INSERT INTO prod.dim_district 
-	(district, population, households, percent_asian, percent_black, percent_white, percent_native_am,
+	(district_key, district, population, households, percent_asian, percent_black, percent_white, percent_native_am,
 	percent_pacific_isle, percent_other_race, percent_latin, median_age, total_units, 
 	percent_owner_occupied, percent_renter_occupied, median_rent_as_perc_of_income, median_household_income, 
 	median_family_income, per_capita_income, percent_in_poverty)
 SELECT 
-	district, population, households, percent_asian, percent_black, percent_white, percent_native_am,
+	district_key, district, population, households, percent_asian, percent_black, percent_white, percent_native_am,
 	percent_pacific_isle, percent_other_race, percent_latin, median_age, total_units, 
 	percent_owner_occupied, percent_renter_occupied, median_rent_as_perc_of_income, median_household_income, 
 	median_family_income, per_capita_income, percent_in_poverty
 FROM staging.dim_district;
 
 INSERT INTO prod.dim_neighborhood
-	(neighborhood, neighborhood_alt_name, population, households, percent_asian, percent_black, percent_white, 
+	(neighborhood_key, neighborhood, neighborhood_alt_name, population, households, percent_asian, percent_black, percent_white, 
 	percent_native_am, percent_pacific_isle, percent_other_race, percent_latin, median_age, total_units, 
 	percent_owner_occupied, percent_renter_occupied, median_rent_as_perc_of_income, median_household_income, 
 	median_family_income, per_capita_income, percent_in_poverty)
 SELECT
-	neighborhood, neighborhood_alt_name, population, households, percent_asian, percent_black, percent_white, 
+	neighborhood_key, neighborhood, neighborhood_alt_name, population, households, percent_asian, percent_black, percent_white, 
 	percent_native_am, percent_pacific_isle, percent_other_race, percent_latin, median_age, total_units, 
 	percent_owner_occupied, percent_renter_occupied, median_rent_as_perc_of_income, median_household_income, 
 	median_family_income, per_capita_income, percent_in_poverty
