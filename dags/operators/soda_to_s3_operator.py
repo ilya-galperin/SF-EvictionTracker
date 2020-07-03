@@ -135,6 +135,8 @@ class SodaToS3Operator(BaseOperator):
 		
 		print('getting... ' + soql_filter)
 		
+		#soql_filter = f"""$query=SELECT:*,* WHERE :created_at < '2020-04-01' ORDER BY :id LIMIT 10000"""
+		
 		offset, counter = 0, 1
 		combined = []
 		while True:
