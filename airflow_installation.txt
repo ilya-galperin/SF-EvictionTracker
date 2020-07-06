@@ -1,5 +1,3 @@
-$0.0416 per Hour t3.medium
-$0.10 per GB-month of provisioned storage EBS
 
 STEP 1 - Launch EC2 Instance:
 - t3.medium
