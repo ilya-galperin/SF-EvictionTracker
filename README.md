@@ -7,7 +7,7 @@ Public Dashboard Link: http://sf-evictiontracker-metabase.us-east-1.elasticbeans
 
 <h3>ARCHITECTURE:</h3>
 
-[IMG]
+![Architecture]https://imgur.com/a/daY6HbG
 
 
 <h3>DATA MODEL:</h3>
