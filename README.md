@@ -41,7 +41,7 @@ DAGs and Customer Airflow Operators -
 
 [DAG Image]
 
-There are 2 DAGs (Directed Acyclic Graph) used for this project - <b>full load</b> which is used for the initialize setup and <b>incremental load</b> which is scheduled to run daily and pull new data from the Socrata Open Data API.
+There are 2 DAGs (Directed Acyclic Graphs) used for this project - <b>full load</b> which is used for the initialize setup and <b>incremental load</b> which is scheduled to run daily and pull new data from the Socrata Open Data API.
 
 The DAGs use two customer operators. They have been purpose built for this project but are easily expandable to be used in other data pipelines.
 
