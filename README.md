@@ -48,7 +48,7 @@ The DAGs use two customer operators. They have been purpose built for this proje
 2. s3_to_postges_operator:
 
 
-<h3>INFRASTRUCTURE/ENVIRONMENT:</h3>
+<h3>INFRASTRUCTURE:</h3>
 
 This project is hosted in the AWS ecosystem and uses the following resources:
 
@@ -62,7 +62,7 @@ RDS -
 Elastic Beanstalk is used to deploy the Metabase web application.
 
 
-<h3>METABASE DASHBOARD:</h3>
+<h3>DASHBOARD:</h3>
 
 The dashboard is publically accessible here: http://sf-evictiontracker-metabase.us-east-1.elasticbeanstalk.com/public/dashboard/f637e470-8ea9-4b03-af80-53988e5b6a9b
 
