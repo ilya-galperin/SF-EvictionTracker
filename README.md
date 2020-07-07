@@ -10,9 +10,10 @@ Public Dashboard Link: http://sf-evictiontracker-metabase.us-east-1.elasticbeans
 [IMG]
 
 
-<b>DATA MODELING:</b>
+<b>DATA MODEL:</b>
 
 Dimension Tables -
+
 dim_district
 dim_neighborhood
 dim_location
@@ -20,9 +21,11 @@ dim_reason
 dim_date
 
 Bridge Tables - 
+
 br_reason_group
 
 Fact Tables -
+
 fact_evictions
 
 The data model is implemented using a star schema with a bridge table to accomodate any new permutations for the reason dimension. More information on bridge tables can be found here: https://www.kimballgroup.com/2012/02/design-tip-142-building-bridges/
