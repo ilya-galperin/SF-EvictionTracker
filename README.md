@@ -12,14 +12,14 @@ Public Dashboard Link: http://sf-evictiontracker-metabase.us-east-1.elasticbeans
 
 <h3>DATA MODEL:</h3>
 
-Dimension Tables -
-
+`Dimension Tables -`
+`
 dim_district
 dim_neighborhood
 dim_location
 dim_reason
 dim_date
-
+`
 Bridge Tables - 
 
 br_reason_group
