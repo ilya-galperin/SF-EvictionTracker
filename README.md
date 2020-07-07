@@ -37,7 +37,7 @@ General Overview -
 - Once the API load to S3 is complete, data is moved into RDS into a "raw" schema and moves through a staging schema for processing
 - ETL job execution is complete once data is moved from the staging schema into the final production tables
 
-DAGs and Customer Airflow Operators -
+DAGs and Custom Airflow Operators -
 
 [DAG Image]
 
