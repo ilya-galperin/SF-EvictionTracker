@@ -43,6 +43,8 @@ DAGs and Custom Airflow Operators -
 
 There are 2 DAGs (Directed Acyclic Graphs) used for this project - <b>full load</b> which is used for the initialize setup and <b>incremental load</b> which is scheduled to run daily and pull new data from the Socrata Open Data API.
 
+The incremental load DAG uses XCom to pass the filesize of the load between the API call task and a ShortCircuitOperator to skip downstream tasks if the API call produces no results. 
+
 The DAGs use two customer operators. They have been purpose built for this project but are easily expandable to be used in other data pipelines.
 
 1. soda_to_s3_operator:
