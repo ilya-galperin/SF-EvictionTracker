@@ -10,7 +10,7 @@ Public Dashboard Link: http://sf-evictiontracker-metabase.us-east-1.elasticbeans
 [IMG]
 
 
-<b>DATA MODEL:</b>
+<h3>DATA MODEL:</h3>
 
 Dimension Tables -
 
@@ -31,7 +31,7 @@ fact_evictions
 The data model is implemented using a star schema with a bridge table to accomodate any new permutations for the reason dimension. More information on bridge tables can be found here: https://www.kimballgroup.com/2012/02/design-tip-142-building-bridges/
 
 
-<b>ETL FLOW:</b>
+<h3>ETL FLOW:</h3>
 
 General Overview - 
 - Evictions data is collected from the SODA API and moved into an S3 Bucket
@@ -52,7 +52,7 @@ The DAGs use two customer operators. They have been purpose built for this proje
 2. s3_to_postges_operator:
 
 
-<b>INFRASTRUCTURE/ENVIRONMENT:</b>
+<h3>INFRASTRUCTURE/ENVIRONMENT:</h3>
 
 This project is hosted in the AWS ecosystem and uses the following resources:
 
@@ -66,7 +66,7 @@ t2.small - hosts application database for Metabase and the data warehouse
 Elastic Beanstalk is used to deploy the Metabase web application.
 
 
-<b>METABASE DASHBOARDS:</b>
+<h3>METABASE DASHBOARDS:</h3>
 
 The dashboards are publically accessible here: http://sf-evictiontracker-metabase.us-east-1.elasticbeanstalk.com/public/dashboard/f637e470-8ea9-4b03-af80-53988e5b6a9b
 
