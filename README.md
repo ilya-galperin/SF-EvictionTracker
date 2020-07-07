@@ -57,11 +57,11 @@ The DAGs use two customer operators. They have been purpose built for this proje
 This project is hosted in the AWS ecosystem and uses the following resources:
 
 EC2 -
-t2.medium - dedicated resource for Airflow, managed by AWS Instant Scheduler to complete the daily DAG run and shut off after execution 
-t2.small - used to host Metabase, always online
+- t2.medium - dedicated resource for Airflow, managed by AWS Instant Scheduler to complete the daily DAG run and shut off after execution 
+- t2.small - used to host Metabase, always online
 
 RDS -
-t2.small - hosts application database for Metabase and the data warehouse
+- t2.small - hosts application database for Metabase and the data warehouse
 
 Elastic Beanstalk is used to deploy the Metabase web application.
 
