@@ -62,8 +62,8 @@ RDS -
 Elastic Beanstalk is used to deploy the Metabase web application.
 
 
-<h3>METABASE DASHBOARDS:</h3>
+<h3>METABASE DASHBOARD:</h3>
 
-The dashboards are publically accessible here: http://sf-evictiontracker-metabase.us-east-1.elasticbeanstalk.com/public/dashboard/f637e470-8ea9-4b03-af80-53988e5b6a9b
+The dashboard is publically accessible here: http://sf-evictiontracker-metabase.us-east-1.elasticbeanstalk.com/public/dashboard/f637e470-8ea9-4b03-af80-53988e5b6a9b
 
 Some examples screengrabs below!
