@@ -40,7 +40,7 @@ General Overview -
 DAGs and Custom Airflow Operators -
 
 ![Ops](https://i.imgur.com/WTOUiGU.jpg)
-![Dag](https://i.imgur.com/xsW6j8S.jpg)
+![Dag](https://i.imgur.com/yJb3DKT.jpg)
 
 There are 2 DAGs (Directed Acyclic Graphs) used for this project - <b>full load</b> which should be executed on initial setup and <b>incremental load</b> which is scheduled to run daily and pull new data from the Socrata Open Data API.
 
