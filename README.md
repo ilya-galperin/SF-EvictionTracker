@@ -48,9 +48,9 @@ The incremental load DAG uses XCom to pass the filesize of the load between the 
 
 The DAGs use two customer operators. They have been purpose built for this project but are easily expandable to be used in other data pipelines.
 
-1. soda_to_s3_operator:
+1. soda_to_s3_operator: Queries the Socrata Open Data API using a SoQL string and uploads the results to an S3 bucket. Includes optional function to check source data size and abort ETL if filesize exceeds user-defined limit.
 
-2. s3_to_postges_operator:
+2. s3_to_postges_operator: Collects data from a file hosted on AWS S3 and loads it into a Postgres table. Current version supports JSON and CSV source data types.
 
 
 <h3>INFRASTRUCTURE:</h3>
