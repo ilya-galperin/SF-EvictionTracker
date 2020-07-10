@@ -7,7 +7,6 @@ Questions? Feel free to reach me at ilya.glprn@gmail.com.
 Public Dashboard Link: http://sf-evictiontracker-metabase.us-east-1.elasticbeanstalk.com/public/dashboard/f637e470-8ea9-4b03-af80-53988e5b6a9b
 
 
-
 <h3>ARCHITECTURE:</h3>
 
 ![Architecture](https://i.imgur.com/s2gLBZt.png)
