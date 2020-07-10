@@ -74,5 +74,5 @@ The dashboard is publically accessible here: http://sf-evictiontracker-metabase.
 
 Some examples screengrabs below!
 
-![Dash](https://i.imgur.com/3ghyDWw.jpg)
-
+![Dash1](https://i.imgur.com/MZ325PT.jpg)
+![Dash2](https://i.imgur.com/OeyOVp0.jpg)
