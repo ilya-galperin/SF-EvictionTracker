@@ -1,6 +1,6 @@
 # SF-EvictionTracker
 
-Tracking district-level eviction rates and neighborhood socio-economic data for San Francisco in the months following COVID-19-related shelter-in-place orders. Data warehouse infrastructure is housed in the AWS ecosystem and uses Apache Airflow for orchestration with public-facing dashboards created using Metabase. 
+Tracking recent and historical eviction trends in San Francisco with breakdowns by eviction reasons, supervisor districts, neighborhoods and their demographics. Data warehouse infrastructure is housed in the AWS ecosystem and uses Apache Airflow for orchestration with public-facing dashboards created using Metabase. 
 
 Questions? Feel free to reach me at ilya.glprn@gmail.com.
 
