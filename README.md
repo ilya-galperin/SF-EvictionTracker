@@ -51,6 +51,7 @@ The DAGs use two customer operators. They have been purpose built for this proje
 
 2. s3_to_postges_operator: Collects data from a file hosted on AWS S3 and loads it into a Postgres table. Current version supports JSON and CSV source data types.
 
+
 <h3>INFRASTRUCTURE:</h3>
 
 This project is hosted in the AWS ecosystem and uses the following resources:
@@ -65,6 +66,7 @@ RDS -
 - t2.small - hosts application database for Metabase and the data warehouse
 
 Elastic Beanstalk is used to deploy the Metabase web application.
+
 
 <h3>DASHBOARD:</h3>
 
