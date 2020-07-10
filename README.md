@@ -26,10 +26,9 @@ Dimension Tables:
 Fact Tables:
 `fact_evictions`
 
-![Model](https://i.imgur.com/pzdvODe.png)
-
 The data model is implemented using a star schema with a bridge table to accomodate any new permutations for the reason dimension. More information on bridge tables can be found here: https://www.kimballgroup.com/2012/02/design-tip-142-building-bridges/
 
+![Model](https://i.imgur.com/pzdvODe.png)
 
 <h3>ETL FLOW:</h3>
 
