@@ -15,7 +15,7 @@ Public Dashboard Link: http://sf-evictiontracker-metabase.us-east-1.elasticbeans
 
 <h3>DATA MODEL:</h3>
 
-![Model](https://i.imgur.com/VUJisVC.png)
+![Model](https://i.imgur.com/aqh35XB.png)
 
 Dimension Tables:
 `dim_district`
