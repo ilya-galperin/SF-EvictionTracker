@@ -57,7 +57,7 @@ The DAGs use two customer operators. They have been purpose built for this proje
 
 This project is hosted in the AWS ecosystem and uses the following resources:
 
-![EC2](https://i.imgur.com/7DHOAyo.png)
+![EC2](https://i.imgur.com/jB2X1jI.png)
 
 EC2 -
 - t2.medium - dedicated resource for Airflow, managed by AWS Instance Scheduler to complete the daily DAG run and shut off after execution 
