@@ -70,7 +70,7 @@ Elastic Beanstalk is used to deploy the Metabase web application.
 
 <h3>DASHBOARD:</h3>
 
-The dashboard is publically accessible here: http://sf-evictiontracker-metabase.us-east-1.elasticbeanstalk.com/public/dashboard/f637e470-8ea9-4b03-af80-53988e5b6a9b
+The dashboard is publicly accessible here: http://sf-evictiontracker-metabase.us-east-1.elasticbeanstalk.com/public/dashboard/f637e470-8ea9-4b03-af80-53988e5b6a9b
 
 Some examples screengrabs below!
 
