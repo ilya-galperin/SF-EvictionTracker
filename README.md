@@ -10,7 +10,7 @@ Public Dashboard Link: http://sf-evictiontracker-metabase.us-east-1.elasticbeans
 <h3>ARCHITECTURE:</h3>
 
 ![Architecture](https://i.imgur.com/s2gLBZt.png)
-Date is sourced from San Francisco Open Data's API and csv's containing San Francisco district and neighborhood aggregate census results. Airflow orchestrates its movement to an S3 bucket and into a data warehouse hosted in RDS. SQL scripts are then ran to transform the data from its raw form through a staging schema and into production target tables. The presentation layer is created using Metabase, an open-source data visualization tool, and deployed using Elastic Beanstalk. 
+Data is sourced from San Francisco Open Data's API and csv's containing San Francisco district and neighborhood aggregate census results. Airflow orchestrates its movement to an S3 bucket and into a data warehouse hosted in RDS. SQL scripts are then ran to transform the data from its raw form through a staging schema and into production target tables. The presentation layer is created using Metabase, an open-source data visualization tool, and deployed using Elastic Beanstalk. 
 
 <h3>DATA MODEL:</h3>
 
